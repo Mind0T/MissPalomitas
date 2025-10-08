@@ -281,17 +281,22 @@ header nav a:hover::after {
     text-align: left;
 }
 
+/* --- MODIFICACIÓN 1: Justificar el texto --- */
+.about-texto p {
+    text-align: justify;
+}
+
 .about-imagen {
     flex: 1;
     text-align: center;
 }
 
+/* --- MODIFICACIÓN 2: Cambiar la imagen a una forma normal --- */
 .about-imagen img {
     max-width: 100%;
     height: auto;
-    border-radius: 50%; /* Imagen redonda */
-    border: 5px solid white;
-    box-shadow: 0 0 25px rgba(217, 74, 139, 0.3);
+    border-radius: 15px; /* Se cambió de 50% a 15px */
+    /* Se eliminaron el borde y la sombra */
 }
 
 /* ======== SECCIÓN PEDIDOS (CONTACTO) ======== */
