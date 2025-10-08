@@ -1,54 +1,130 @@
-<!DOCTYPE html> <!--Tipo de documento: HTML5-->
-<html lang="es-MX"> <!--Lenguaje del contenido: Español de México-->
-
+<!DOCTYPE html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8"> <!--Codificación de caracteres, evita errores con tildes, eñes, etc.-->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!--Compatibilidad con Internet Explorer-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--Adaptación a dispositivos móviles-->
-    <title>portafolio</title> <!--Título de la pestaña del navegador-->
-    <link rel="stylesheet" href="styles/style.css"> <!--Enlace a la hoja de estilos externa-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miss Palomitas | Palomitas Gourmet para Eventos</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 </head>
-
 <body>
-    <header class="header">
-        <nav class="header_menu">
-            <a class="header_menu_link" href="index.html">Home</a>
-            <a class="header_menu_link" href="about.html">Sobre mí</a>
+
+    <header>
+        <div class="logo">
+            <a href="#inicio">
+                <img src="img/ig-13.png" alt="Logotipo de Miss Palomitas">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#sabores">Sabores</a></li>
+                <li><a href="#nosotros">Nosotros</a></li>
+                <li><a href="#pedidos">Pedidos</a></li>
+            </ul>
         </nav>
-    </header> <!--Encabezado de la página (vacío por ahora)-->
+    </header>
 
-    <main class="presentacion"> <!--Contenido principal de la página, sección de presentación-->
-        <section class="presentacion_contenido"> <!--Sección que contiene el texto principal-->
-            <h1 class="presentacion_contenido_titulo">
-                Eleve tu negocio digital a otro nivel
-                <strong class="titulo-destaque">con un Front-end de calidad!</strong> <!--Texto destacado en azul-->
-            </h1>
-
-            <p class="presentacion_contenido_texto">
-                ¡Hola! Soy Ana García, desarrolladora Front-end con especialización en React, HTML y CSS.
-                Ayudo a pequeños negocios y diseñadores a llevar a cabo buenas ideas. ¿Hablamos?
-            </p>
-
-            <div class="presentacion_enlaces"> <!--División que contiene los enlaces a redes sociales-->
-                <h2 class="presentacion_enlaces_subtitulo">Accede a mis redes</h2>
-                <a class="presentacion_enlaces_link" href="https://github.com/">
-                    <img src="assets/github.png" alt="logo github">
-                    Github</a> <!--Enlace a GitHub-->
-                <a class="presentacion_enlaces_link" href="https://www.instagram.com/">
-                    <img src="assets/linkedin.png" alt="logo linkedin">
-                    Linkedin</a> <!--Enlace a linkedin-->
-                <a class="presentacion_enlaces_link" href="https://www.twitch.tv/">
-                    <img src="assets/twitch.png" alt="logo twitch">
-                    Twitch</a>
+    <main>
+        <section id="inicio" class="hero">
+            <div class="carousel-container">
+                <img src="img/carrusel/carrusel1.jpg" alt="Palomitas de Mantequilla" class="carousel-image active">
+                <img src="img/carrusel/carrusel2.jpg" alt="Palomitas de Queso" class="carousel-image">
+                <img src="img/carrusel/carrusel3.jpg" alt="Palomitas Picositas" class="carousel-image">
+            </div>
+            <div class="hero-text">
+                <h1>El sabor que explota en tu boca.</h1>
+                <p>Palomitas gourmet de maíz mushroom para tus eventos.</p>
             </div>
         </section>
 
-        <img class="presentacion_imagen" src="assets/foto.png" alt="Imagen de Ana García trabajando"> <!--Imagen descriptiva con texto alternativo-->
+        <section id="sabores">
+            <div class="container">
+                <h2>Nuestros Sabores</h2>
+                <div class="filtros">
+                    <button class="filtro-btn" data-filter="picositas">Picositas</button>
+                    <button class="filtro-btn" data-filter="saladas">Saladas</button>
+                    <button class="filtro-btn" data-filter="dulces">Dulces</button>
+                </div>
+                <div class="galeria-grid">
+                    <div class="galeria-placeholder">
+                        <img src="img/ig-13.png" alt="Logo Miss Palomitas">
+                        <p>Selecciona una categoría para ver nuestros deliciosos sabores</p>
+                    </div>
+
+                    <div class="galeria-item" data-category="picositas"><img src="img/sabores/tajin.jpg" alt="Palomitas sabor Tajín"></div>
+                    <div class="galeria-item" data-category="picositas"><img src="img/sabores/adobadas.jpg" alt="Palomitas sabor Adobadas"></div>
+                    <div class="galeria-item" data-category="picositas"><img src="img/sabores/chipotle.jpg" alt="Palomitas sabor Chipotle"></div>
+                    <div class="galeria-item" data-category="picositas"><img src="img/sabores/pelon.jpg" alt="Palomitas sabor Pelón"></div>
+
+                    <div class="galeria-item" data-category="saladas"><img src="img/sabores/natural.jpg" alt="Palomitas sabor Natural"></div>
+                    <div class="galeria-item" data-category="saladas"><img src="img/sabores/limon.jpg" alt="Palomitas sabor Limón y Sal"></div>
+                    <div class="galeria-item" data-category="saladas"><img src="img/sabores/mantequilla.jpg" alt="Palomitas sabor Mantequilla"></div>
+                    <div class="galeria-item" data-category="saladas"><img src="img/sabores/queso.jpg" alt="Palomitas sabor Queso"></div>
+
+                    <div class="galeria-item" data-category="dulces"><img src="img/sabores/vainilla.jpg" alt="Palomitas sabor Vainilla"></div>
+                    <div class="galeria-item" data-category="dulces"><img src="img/sabores/mango.jpg" alt="Palomitas sabor Mango"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="nosotros">
+            <div class="container about-container">
+                <div class="about-texto">
+                    <h3>¿Quiénes Somos?</h3>
+                    <h2>Somos Miss Palomitas</h2>
+                    <p>Nacimos de la pasión por crear momentos inolvidables. En Miss Palomitas, nos dedicamos a elaborar las más deliciosas palomitas gourmet utilizando solo maíz mushroom de la más alta calidad, que garantiza una forma redondita y una textura perfecta en cada bocado.</p>
+                    <p>Nuestra misión es llevar a tu evento un snack único y divertido que sorprenda a todos tus invitados. Desde fiestas infantiles hasta reuniones corporativas, nuestras palomitas son el detalle perfecto para añadir un toque de sabor y alegría.</p>
+                </div>
+                <div class="about-imagen">
+                    <img src="img/ig-13.png" alt="Logo de Miss Palomitas">
+                </div>
+            </div>
+        </section>
+
+        <section id="pedidos">
+            <div class="container">
+                <h2>Contacto y Pedidos</h2>
+                <p>¡Lleva la experiencia Miss Palomitas a tu próximo evento! Encuéntranos en redes sociales o llena el formulario para cotizar.</p>
+                <div class="links-contacto">
+                    <a href="#" target="_blank" class="link-item"><i class="fab fa-instagram"></i> Instagram</a>
+                    <a href="#" target="_blank" class="link-item"><i class="fab fa-facebook"></i> Facebook</a>
+                    <a href="#" target="_blank" class="link-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                </div>
+
+                <div class="contact-form-container">
+                    <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST"> <div class="form-group">
+                            <label for="name">Nombre:</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Tu Correo:</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Mensaje:</label>
+                            <textarea id="message" name="message" rows="6" placeholder="Cuéntanos sobre tu evento, número de invitados y qué sabores te interesan." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-enviar">Enviar Cotización</button>
+                    </form>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer>
-        <p>Desarrollado por Alura Latam</p>
-    </footer> <!--Pie de página-->
-</body>
+        <p>&copy; 2025 Miss Palomitas. Todos los derechos reservados.</p>
+    </footer>
 
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-cerrar">&times;</span>
+        <div class="lightbox-wrapper">
+            <img class="lightbox-contenido" id="lightbox-img">
+            <a class="lightbox-prev">&#10094;</a>
+            <a class="lightbox-next">&#10095;</a>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
 </html>
