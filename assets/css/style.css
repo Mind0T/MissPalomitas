@@ -1,15 +1,14 @@
 /* ======== CONFIGURACIÓN GENERAL Y VARIABLES ======== */
 :root {
-    --color-primario: #FFF5FA; /* Rosa muy claro de fondo */
-    --color-secundario: #D94A8B; /* Magenta para textos importantes y detalles */
-    --color-acento: #54C5C3; /* Verde menta para acentos y botones */
-    --color-texto: #333333; /* Color de texto principal oscuro */
-    --fuente-titulos: 'Pacifico', cursive;
+    --color-primario: #FFF5FA; 
+    --color-secundario: #D94A8B; 
+    --color-acento: #54C5C3; 
+    --color-texto: #333333; 
+    --fuente-titulos: 'Fredoka', sans-serif; 
     --fuente-texto: 'Nunito', sans-serif;
 }
 
-/* Importar fuentes de Google */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Pacifico&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700&display=swap');
 
 * {
     margin: 0;
@@ -133,31 +132,6 @@ header nav a:hover::after {
     opacity: 1;
 }
 
-.carousel-container.transitioning .carousel-image.active {
-    opacity: 0;
-}
-
-.carousel-control {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(217, 74, 139, 0.4);
-    color: white;
-    border: none;
-    padding: 15px;
-    cursor: pointer;
-    font-size: 24px;
-    z-index: 10;
-    transition: background 0.3s ease;
-}
-
-.carousel-control:hover {
-    background: rgba(217, 74, 139, 0.8);
-}
-
-.carousel-control.prev { left: 10px; }
-.carousel-control.next { right: 10px; }
-
 .hero::before {
     content: '';
     position: absolute;
@@ -165,7 +139,7 @@ header nav a:hover::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 245, 250, 0.5); /* Overlay rosa claro */
+    background: rgba(255, 245, 250, 0.5); 
     z-index: 0;
 }
 
@@ -186,12 +160,12 @@ header nav a:hover::after {
     font-weight: 700;
 }
 
-/* ======== SECCIÓN SABORES (TRABAJO) ======== */
+/* ======== SECCIÓN SABORES ======== */
 #sabores {
     background-color: #ffffff;
 }
 
-#sabores h2, #pedidos h2, #nosotros .about-texto h2 {
+#sabores h2, #pedidos h2, #nosotros .about-texto h2, #videos h2 {
     text-align: center;
     margin-bottom: 2rem;
     font-size: 3.5rem;
@@ -224,34 +198,20 @@ header nav a:hover::after {
 
 .galeria-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
     position: relative;
     min-height: 500px;
 }
 
-.galeria-placeholder {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    opacity: 0.8;
-}
-
-.galeria-placeholder img {
-    max-width: 200px;
-    height: auto;
-    margin-bottom: 1rem;
-}
-
 .galeria-item {
-    display: none;
+    display: none; 
     overflow: hidden;
     position: relative;
     cursor: pointer;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    aspect-ratio: 1 / 1; 
 }
 
 .galeria-item img {
@@ -266,7 +226,76 @@ header nav a:hover::after {
     transform: scale(1.1);
 }
 
-/* ======== SECCIÓN NOSOTROS (SOBRE MÍ) ======== */
+/* ======== SECCIÓN: VIDEOS (MAS GRANDE Y RECTANGULAR) ======== */
+#videos {
+    background-color: var(--color-primario);
+    text-align: center;
+}
+
+.video-carousel-wrapper {
+    /* CAMBIO: Aumentado el tamaño máximo para escritorio */
+    max-width: 1000px; 
+    margin: 0 auto 1.5rem auto;
+    position: relative;
+    /* CAMBIO: Ratio ultra-panorámico (21:9) más rectangular */
+    padding-bottom: 42.85%; 
+    height: 0;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    background: #000;
+}
+
+.video-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.video-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+.video-slide iframe {
+    width: 100%;
+    height: 100%;
+}
+
+/* Controles de puntitos (dots) */
+.video-dots-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.video-dot {
+    width: 15px;
+    height: 15px;
+    background-color: #ddd;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.video-dot:hover {
+    background-color: var(--color-acento);
+}
+
+.video-dot.active {
+    background-color: var(--color-secundario);
+    transform: scale(1.2);
+}
+
+/* ======== SECCIÓN NOSOTROS ======== */
 .about-container {
     display: flex;
     align-items: center;
@@ -280,26 +309,20 @@ header nav a:hover::after {
 .about-texto h2{
     text-align: left;
 }
-
-/* --- MODIFICACIÓN 1: Justificar el texto --- */
 .about-texto p {
     text-align: justify;
 }
-
 .about-imagen {
     flex: 1;
     text-align: center;
 }
-
-/* --- MODIFICACIÓN 2: Cambiar la imagen a una forma normal --- */
 .about-imagen img {
     max-width: 100%;
     height: auto;
-    border-radius: 15px; /* Se cambió de 50% a 15px */
-    /* Se eliminaron el borde y la sombra */
+    border-radius: 15px;
 }
 
-/* ======== SECCIÓN PEDIDOS (CONTACTO) ======== */
+/* ======== SECCIÓN PEDIDOS ======== */
 #pedidos {
     background-color: #ffffff;
     text-align: center;
@@ -346,99 +369,4 @@ header nav a:hover::after {
 
 .form-group {
     margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--color-secundario);
-    font-family: var(--fuente-texto);
-    font-weight: 700;
-}
-
-.form-group input,
-.form-group textarea {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    background-color: #fff;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    color: var(--color-texto);
-    font-family: var(--fuente-texto);
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--color-acento);
-}
-
-.btn-enviar {
-    display: block;
-    width: 100%;
-    padding: 1rem;
-    background-color: var(--color-secundario);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-family: var(--fuente-texto);
-    font-weight: 700;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.btn-enviar:hover {
-    background-color: #c5377a;
-    transform: translateY(-3px);
-}
-
-/* ======== FOOTER ======== */
-footer {
-    text-align: center;
-    padding: 2rem;
-    border-top: 1px solid #eee;
-}
-
-/* ======== LIGHTBOX (sin cambios de estilo importantes) ======== */
-.lightbox { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); justify-content: center; align-items: center; padding: 20px; }
-.lightbox-wrapper { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
-.lightbox-contenido { max-width: 100%; max-height: 100%; animation: zoomIn 0.3s ease; object-fit: contain; }
-.lightbox-cerrar { position: absolute; top: 15px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; z-index: 2; }
-.lightbox-prev, .lightbox-next { cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%); width: auto; padding: 16px; color: white; font-weight: bold; font-size: 20px; transition: 0.6s ease; user-select: none; background-color: rgba(217, 74, 139, 0.4); }
-.lightbox-prev:hover, .lightbox-next:hover { background-color: rgba(217, 74, 139, 0.8); }
-.lightbox-prev { left: 20px; }
-.lightbox-next { right: 20px; }
-@keyframes zoomIn { from { transform: scale(0.8); } to { transform: scale(1); } }
-
-/* ======== RESPONSIVE DESIGN ======== */
-@media (max-width: 768px) {
-    header {
-        flex-direction: column;
-        padding: 0.5rem;
-    }
-    header nav ul {
-        gap: 1.5rem;
-        padding: 0.5rem 0;
-    }
-    
-    .hero-text h1 {
-        font-size: 2.8rem;
-    }
-    .hero-text p {
-        font-size: 1.2rem;
-    }
-
-    h2 {
-        font-size: 2.5rem !important;
-    }
-    
-    .about-container {
-        flex-direction: column;
-    }
-    .about-texto h2 {
-        text-align: center;
-    }
 }
