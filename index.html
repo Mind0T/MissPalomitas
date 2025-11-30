@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miss Palomitas | Palomitas Gourmet para Eventos</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 </head>
@@ -16,27 +20,45 @@
                 <img src="assets/img/ig-13.png" alt="Logotipo de Miss Palomitas">
             </a>
         </div>
-        <nav>
-            <ul>
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#sabores">Sabores</a></li>
-                <li><a href="#videos">Videos</a></li>
-                <li><a href="#nosotros">Nosotros</a></li>
-                <li><a href="#pedidos">Pedidos</a></li>
-            </ul>
-        </nav>
+
+        <div class="header-right">
+            <nav>
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#sabores">Sabores</a></li>
+                    <li><a href="#videos">Videos</a></li>
+                    <li><a href="#nosotros">Nosotros</a></li>
+                    <li><a href="#pedidos">Pedidos</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-socials">
+                <a href="https://www.instagram.com/miss_palomitas" target="_blank" title="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://www.tiktok.com/@jandybell" target="_blank" title="TikTok">
+                    <i class="fa-brands fa-tiktok"></i>
+                </a>
+                <a href="https://www.youtube.com" target="_blank" title="YouTube">
+                    <i class="fa-brands fa-youtube"></i>
+                </a>
+            </div>
+        </div>
     </header>
 
     <main>
         <section id="inicio" class="hero">
             <div class="carousel-container">
-                <img src="assets/img/carrusel/carrusel1.jpg" alt="Palomitas de Mantequilla" class="carousel-image active">
-                <img src="assets/img/carrusel/carrusel2.jpg" alt="Palomitas de Queso" class="carousel-image">
-                <img src="assets/img/carrusel/carrusel3.jpg" alt="Palomitas Picositas" class="carousel-image">
+                <img src="assets/img/carrusel/carrusel1.jpg" alt="Maquina palomitas" class="carousel-image active">
+                <img src="assets/img/carrusel/carrusel2.jpg" alt="Bote palomitas" class="carousel-image">
+                <img src="assets/img/carrusel/carrusel3.jpg" alt="Tres palomitas fondo rosa" class="carousel-image">
+                <img src="assets/img/carrusel/carrusel4.jpg" alt="Estilo de vida palomitas" class="carousel-image">
+                <img src="assets/img/carrusel/carrusel5.jpg" alt="Copa palomitas" class="carousel-image">
             </div>
+
             <div class="hero-text">
-                <h1>El sabor que explota en tu boca.</h1>
-                <p>Palomitas gourmet de maíz mushroom para tus eventos.</p>
+                <h1>El sabor que explota en tu boca</h1>
+                <p>Palomitas gourmet de maíz mushroom para tus eventos más especiales.</p>
             </div>
         </section>
 
@@ -49,7 +71,6 @@
                     <button class="filtro-btn" data-filter="dulces">Dulces</button>
                 </div>
                 <div class="galeria-grid">
-                    
                     <div class="galeria-item" data-category="picositas"><img src="assets/img/sabores/tajin.jpg" alt="Palomitas sabor Tajín"></div>
                     <div class="galeria-item" data-category="picositas"><img src="assets/img/sabores/adobadas.jpg" alt="Palomitas sabor Adobadas"></div>
                     <div class="galeria-item" data-category="picositas"><img src="assets/img/sabores/chipotle.jpg" alt="Palomitas sabor Chipotle"></div>
@@ -83,7 +104,6 @@
                     <span class="video-dot active" data-index="0"></span>
                     <span class="video-dot" data-index="1"></span>
                 </div>
-
             </div>
         </section>
 
