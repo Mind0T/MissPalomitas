@@ -97,7 +97,17 @@ header nav a:hover::after { width: 100%; }
 .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--color-secundario); }
 .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-family: var(--fuente-texto); font-size: 1rem; }
 .form-group input:focus, .form-group textarea:focus { border-color: var(--color-acento); outline: none; }
-.links-contacto { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-top: 2rem; }
+
+/* Modificación para los botones arriba del formulario */
+.links-contacto { 
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    gap: 1.5rem; 
+    margin-top: 0;       /* Antes era margin-top: 2rem */
+    margin-bottom: 2rem; /* Añadimos espacio abajo para separar del form */
+}
+
 .link-item { padding: 1rem 2rem; border: 2px solid var(--color-secundario); border-radius: 30px; text-decoration: none; color: var(--color-secundario); font-weight: 700; transition: all 0.3s ease; }
 .link-item:hover { background-color: var(--color-secundario); color: white; transform: scale(1.05); }
 
