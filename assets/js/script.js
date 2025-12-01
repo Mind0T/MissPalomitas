@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================================
        CONFIGURACIÓN Y VARIABLES GLOBALES
        ========================================= */
-    // ⚠️ TU URL EXACTA (Ya la pegué aquí):
-    const API_URL = "https://script.google.com/macros/s/AKfycbzI6QDF1hSByKeNQ3UswkZH8ebJLuXZhx6UBOvNAaRBNj85nhaj-Q7Wb5w7t5slIqzJ/exec";
+    // ⚠️ TU URL EXACTA Y DEFINITIVA:
+    const API_URL = "https://script.google.com/macros/s/AKfycbz2QT736O4bygZwad4WUuEsKcOR0mzRlYD7oGR5q8qu8wxleXE40ohunNcS68GNGGal/exec";
 
     let inventario = []; // Datos de stock desde Sheets
     let carrito = [];    // Carrito de compras local
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("¡Conexión exitosa! Stock cargado:", inventario);
         } catch (error) {
             console.error("Error cargando DB:", error);
-            console.warn("Posible causa: No configuraste permisos como 'Cualquier usuario' en Apps Script.");
+            console.warn("Si ves este error, revisa tu conexión o los permisos del script.");
             inventario = []; 
         }
     }
@@ -137,8 +137,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             btnAgregar.style.backgroundColor = "#ccc";
                         }
                     } else {
-                        lbTitulo.innerText = "Producto no encontrado";
-                        lbStock.innerText = "Revisa consola (F12)";
+                        // Si no se encuentra (por ejemplo, si falló la carga inicial)
+                        lbTitulo.innerText = "Consultando...";
+                        lbStock.innerText = "-";
                         lbPrecio.innerText = "-";
                         btnAgregar.disabled = true;
                         btnAgregar.style.backgroundColor = "#ccc";
@@ -244,13 +245,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (errores === 0) {
-            alert("¡Pedido registrado exitosamente!");
+            alert("¡Pedido registrado exitosamente! El stock se ha actualizado.");
             carrito = [];
             actualizarCarritoUI();
             carritoModal.style.display = 'none';
             cargarInventario(); // Recargar stock real
         } else {
-            alert("Hubo un error de conexión.");
+            alert("Hubo un error de conexión, pero intentaremos recargar el inventario.");
+            cargarInventario();
         }
         
         btnPagar.innerText = "Confirmar Pedido";
