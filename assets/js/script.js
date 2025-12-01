@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================================
        CONFIGURACIÓN Y VARIABLES GLOBALES
        ========================================= */
-    // Tu URL exacta de Google Apps Script
+    // ⚠️ TU URL EXACTA (Ya la pegué aquí):
     const API_URL = "https://script.google.com/macros/s/AKfycbzI6QDF1hSByKeNQ3UswkZH8ebJLuXZhx6UBOvNAaRBNj85nhaj-Q7Wb5w7t5slIqzJ/exec";
 
     let inventario = []; // Datos de stock desde Sheets
@@ -13,15 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
        1. CONEXIÓN CON GOOGLE SHEETS
        ========================================= */
     async function cargarInventario() {
-        console.log("Cargando inventario...");
+        console.log("Intentando conectar con:", API_URL);
         try {
             const response = await fetch(API_URL);
+            if (!response.ok) throw new Error("Error en la respuesta del servidor");
             const data = await response.json();
             inventario = data;
-            console.log("Stock actualizado:", inventario);
+            console.log("¡Conexión exitosa! Stock cargado:", inventario);
         } catch (error) {
             console.error("Error cargando DB:", error);
-            // Datos vacíos por si falla, evitar romper el sitio
+            console.warn("Posible causa: No configuraste permisos como 'Cualquier usuario' en Apps Script.");
             inventario = []; 
         }
     }
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.querySelector('.lightbox-cerrar');
     const lightboxWrapper = document.querySelector('.lightbox-wrapper');
 
-    // Crear Panel de Info Dinámico dentro del Lightbox
+    // Panel de Info
     const infoPanel = document.createElement('div');
     infoPanel.className = 'info-producto';
     infoPanel.innerHTML = `
@@ -113,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const img = item.querySelector('img');
                 const idProducto = item.getAttribute('data-id'); 
                 
-                // Buscar en DB (usando comparación estricta de string)
+                // Buscar en DB (Coincidencia exacta)
                 productoActual = inventario.find(p => p.id === idProducto);
 
                 if (img) {
@@ -136,9 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             btnAgregar.style.backgroundColor = "#ccc";
                         }
                     } else {
-                        // Si no encuentra el producto en sheets
-                        lbTitulo.innerText = "Sabor disponible";
-                        lbStock.innerText = "Consultar disponibilidad";
+                        lbTitulo.innerText = "Producto no encontrado";
+                        lbStock.innerText = "Revisa consola (F12)";
                         lbPrecio.innerText = "-";
                         btnAgregar.disabled = true;
                         btnAgregar.style.backgroundColor = "#ccc";
@@ -225,11 +225,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let errores = 0;
 
-        // Procesamos cada ítem del carrito
+        // Procesamos cada ítem
         for (const item of carrito) {
             const datosCompra = { id: item.id, cantidad: 1 };
             
             try {
+                // 'no-cors' permite enviar datos aunque no podamos leer la respuesta
                 await fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -243,13 +244,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (errores === 0) {
-            alert("¡Pedido registrado exitosamente! El stock se ha actualizado.");
+            alert("¡Pedido registrado exitosamente!");
             carrito = [];
             actualizarCarritoUI();
             carritoModal.style.display = 'none';
             cargarInventario(); // Recargar stock real
         } else {
-            alert("Hubo un error de conexión. Inténtalo de nuevo.");
+            alert("Hubo un error de conexión.");
         }
         
         btnPagar.innerText = "Confirmar Pedido";
