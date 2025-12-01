@@ -22,19 +22,25 @@
                 <img src="assets/img/ig-13.png" alt="Logotipo de Miss Palomitas">
             </a>
         </div>
-        <div class="header-right">
+        
+        <button class="menu-toggle" aria-label="Abrir menú">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="header-right" id="navbar">
             <nav>
                 <ul>
-                    <li><a href="#inicio">Inicio</a></li>
-                    <li><a href="#sabores">Sabores</a></li>
-                    <li><a href="#videos">Videos</a></li>
-                    <li><a href="#nosotros">Nosotros</a></li>
-                    <li><a href="#pedidos">Pedidos</a></li>
+                    <li><a href="#inicio" class="nav-link">Inicio</a></li>
+                    <li><a href="#sabores" class="nav-link">Sabores</a></li>
+                    <li><a href="#videos" class="nav-link">Videos</a></li>
+                    <li><a href="#nosotros" class="nav-link">Nosotros</a></li>
+                    <li><a href="#contacto" class="nav-link">Contacto</a></li>
                 </ul>
             </nav>
             <div class="header-socials">
                 <a href="https://www.instagram.com/miss_palomitas" target="_blank"><i class="fa-brands fa-instagram"></i></a>
                 <a href="https://www.tiktok.com/@jandybell" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+                <a href="https://www.youtube.com/@MissPalomitass" target="_blank" title="Canal de YouTube"><i class="fa-brands fa-youtube"></i></a>
             </div>
         </div>
     </header>
@@ -64,18 +70,48 @@
                 </div>
                 
                 <div class="galeria-grid">
-                    <div class="galeria-item" data-category="picositas" data-id="tajiin"><img src="assets/img/sabores/tajin.jpg" alt="Tajín" loading="lazy"></div>
-                    <div class="galeria-item" data-category="picositas" data-id="adobadas"><img src="assets/img/sabores/adobadas.jpg" alt="Adobadas" loading="lazy"></div>
-                    <div class="galeria-item" data-category="picositas" data-id="chipotle"><img src="assets/img/sabores/chipotle.jpg" alt="Chipotle" loading="lazy"></div>
-                    <div class="galeria-item" data-category="picositas" data-id="pelon"><img src="assets/img/sabores/pelon.jpg" alt="Pelón Pelo Rico" loading="lazy"></div>
+                    <div class="galeria-item" data-category="picositas" data-id="tajiin">
+                        <img src="assets/img/sabores/tajin.jpg" alt="Tajín" loading="lazy">
+                        <div class="sabor-nombre">Tajín</div>
+                    </div>
+                    <div class="galeria-item" data-category="picositas" data-id="adobadas">
+                        <img src="assets/img/sabores/adobadas.jpg" alt="Adobadas" loading="lazy">
+                        <div class="sabor-nombre">Adobadas</div>
+                    </div>
+                    <div class="galeria-item" data-category="picositas" data-id="chipotle">
+                        <img src="assets/img/sabores/chipotle.jpg" alt="Chipotle" loading="lazy">
+                        <div class="sabor-nombre">Chipotle</div>
+                    </div>
+                    <div class="galeria-item" data-category="picositas" data-id="pelon">
+                        <img src="assets/img/sabores/pelon.jpg" alt="Pelón Pelo Rico" loading="lazy">
+                        <div class="sabor-nombre">Pelón Pelo Rico</div>
+                    </div>
                     
-                    <div class="galeria-item" data-category="saladas" data-id="natural"><img src="assets/img/sabores/natural.jpg" alt="Natural" loading="lazy"></div>
-                    <div class="galeria-item" data-category="saladas" data-id="limonsal"><img src="assets/img/sabores/limon.jpg" alt="Limón y Sal" loading="lazy"></div>
-                    <div class="galeria-item" data-category="saladas" data-id="mantequilla"><img src="assets/img/sabores/mantequilla.jpg" alt="Mantequilla" loading="lazy"></div>
-                    <div class="galeria-item" data-category="saladas" data-id="chedar"><img src="assets/img/sabores/queso.jpg" alt="Queso Cheddar" loading="lazy"></div>
+                    <div class="galeria-item" data-category="saladas" data-id="natural">
+                        <img src="assets/img/sabores/natural.jpg" alt="Natural" loading="lazy">
+                        <div class="sabor-nombre">Natural</div>
+                    </div>
+                    <div class="galeria-item" data-category="saladas" data-id="limonsal">
+                        <img src="assets/img/sabores/limon.jpg" alt="Limón y Sal" loading="lazy">
+                        <div class="sabor-nombre">Limón y Sal</div>
+                    </div>
+                    <div class="galeria-item" data-category="saladas" data-id="mantequilla">
+                        <img src="assets/img/sabores/mantequilla.jpg" alt="Mantequilla" loading="lazy">
+                        <div class="sabor-nombre">Mantequilla</div>
+                    </div>
+                    <div class="galeria-item" data-category="saladas" data-id="chedar">
+                        <img src="assets/img/sabores/queso.jpg" alt="Queso Cheddar" loading="lazy">
+                        <div class="sabor-nombre">Queso Cheddar</div>
+                    </div>
 
-                    <div class="galeria-item" data-category="dulces" data-id="vainilla"><img src="assets/img/sabores/vainilla.jpg" alt="Vainilla" loading="lazy"></div>
-                    <div class="galeria-item" data-category="dulces" data-id="mango"><img src="assets/img/sabores/mango.jpg" alt="Mango" loading="lazy"></div>
+                    <div class="galeria-item" data-category="dulces" data-id="vainilla">
+                        <img src="assets/img/sabores/vainilla.jpg" alt="Vainilla" loading="lazy">
+                        <div class="sabor-nombre">Vainilla</div>
+                    </div>
+                    <div class="galeria-item" data-category="dulces" data-id="mango">
+                        <img src="assets/img/sabores/mango.jpg" alt="Mango" loading="lazy">
+                        <div class="sabor-nombre">Mango</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -85,7 +121,7 @@
                 <h2>Experiencias en Video</h2>
                 <div class="video-carousel-wrapper">
                     <div class="video-slide active">
-                        <iframe src="https://www.youtube.com/embed/u7CfyvD-0LI" title="Video 1" frameborder="0" allowfullscreen></iframe>
+                        <iframe src="https://www.youtube.com/embed/8njA6QqjYXg" title="Miss Palomitas Short" frameborder="0" allowfullscreen></iframe>
                     </div>
                     <div class="video-slide">
                         <iframe src="https://www.youtube.com/embed/PFM4HxGWdRg" title="Video 2" frameborder="0" allowfullscreen></iframe>
@@ -111,10 +147,29 @@
             </div>
         </section>
 
-        <section id="pedidos">
+        <section id="contacto">
             <div class="container">
-                <h2>Contacto</h2>
+                <h2>Contacto y Pedidos</h2>
                 <p>¡Lleva la experiencia Miss Palomitas a tu próximo evento!</p>
+                
+                <div class="form-container">
+                    <form action="https://formspree.io/f/manpddoq" method="POST" class="contact-form">
+                        <div class="form-group">
+                            <label for="nombre">Nombre:</label>
+                            <input type="text" id="nombre" name="name" required placeholder="Tu nombre">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Correo Electrónico:</label>
+                            <input type="email" id="email" name="email" required placeholder="tu@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="mensaje">Mensaje o Pedido:</label>
+                            <textarea id="mensaje" name="message" required placeholder="Cuéntanos qué necesitas..." rows="5"></textarea>
+                        </div>
+                        <button type="submit" class="btn-enviar">Enviar Mensaje</button>
+                    </form>
+                </div>
+
                 <div class="links-contacto">
                     <a href="https://www.instagram.com/miss_palomitas" target="_blank" class="link-item"><i class="fab fa-instagram"></i> Instagram</a>
                     <a href="https://wa.me/525514732501" target="_blank" class="link-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>

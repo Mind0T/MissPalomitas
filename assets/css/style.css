@@ -17,11 +17,14 @@ h3 { color: var(--color-acento); font-family: var(--fuente-texto); font-weight: 
 /* HEADER */
 header {
     position: fixed; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center;
-    padding: 1rem 2rem; background: rgba(255, 245, 250, 0.95); backdrop-filter: blur(10px); z-index: 1000;
+    padding: 1rem 2rem; background: rgba(255, 245, 250, 0.98); backdrop-filter: blur(10px); z-index: 1000;
     border-bottom: 2px solid var(--color-secundario); box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 header .logo img { height: 85px; transition: height 0.3s ease; }
-.header-right { display: flex; align-items: center; gap: 3rem; }
+
+.menu-toggle { display: none; background: none; border: none; font-size: 2rem; color: var(--color-secundario); cursor: pointer; }
+
+.header-right { display: flex; align-items: center; gap: 3rem; transition: all 0.3s ease; }
 header nav ul { list-style: none; display: flex; gap: 2.5rem; }
 header nav a { text-decoration: none; color: var(--color-secundario); font-family: var(--fuente-texto); font-weight: 700; font-size: 1.3rem; position: relative; padding-bottom: 5px; }
 header nav a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background-color: var(--color-acento); transition: width 0.3s ease; }
@@ -41,18 +44,40 @@ header nav a:hover::after { width: 100%; }
 
 /* SABORES */
 #sabores { background-color: #ffffff; }
-#sabores h2, #pedidos h2, #nosotros h2, #videos h2 { text-align: center; margin-bottom: 2rem; font-size: 4rem; }
+#sabores h2, #contacto h2, #nosotros h2, #videos h2 { text-align: center; margin-bottom: 2rem; font-size: 4rem; }
 .filtros { text-align: center; margin-bottom: 2rem; }
 .filtro-btn { background: none; border: 2px solid var(--color-acento); border-radius: 25px; color: var(--color-acento); padding: 0.7rem 2rem; margin: 0 0.5rem; cursor: pointer; transition: all 0.3s ease; font-family: var(--fuente-texto); font-weight: 700; font-size: 1rem; }
 .filtro-btn.active, .filtro-btn:hover { background: var(--color-acento); color: white; transform: scale(1.05); }
 .galeria-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; min-height: 500px; }
+
 .galeria-item { display: none; overflow: hidden; position: relative; cursor: pointer; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); aspect-ratio: 1 / 1; }
 .galeria-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
 .galeria-item:hover img { transform: scale(1.1); }
 
+/* Etiquetas de Sabor */
+.sabor-nombre {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(217, 74, 139, 0.85); /* Color secundario con transparencia */
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+.galeria-item:hover .sabor-nombre { transform: translateY(0); }
+/* Si prefieres que siempre se vean en móvil, puedes usar media queries */
+@media (max-width: 768px) {
+    .sabor-nombre { transform: translateY(0); padding: 5px; font-size: 1rem; }
+}
+
 /* VIDEOS & NOSOTROS */
 #videos { background-color: var(--color-primario); text-align: center; }
-.video-carousel-wrapper { max-width: 1000px; margin: 0 auto 1.5rem auto; position: relative; padding-bottom: 42.85%; height: 0; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: #000; }
+.video-carousel-wrapper { max-width: 1000px; margin: 0 auto 1.5rem auto; position: relative; padding-bottom: 56.25%; /* Ajuste para 16:9 o shorts */ height: 0; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: #000; }
 .video-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
 .video-slide.active { opacity: 1; pointer-events: auto; z-index: 1; }
 .video-slide iframe { width: 100%; height: 100%; }
@@ -65,19 +90,23 @@ header nav a:hover::after { width: 100%; }
 .about-imagen { flex: 1; text-align: center; }
 .about-imagen img { max-width: 100%; border-radius: 15px; }
 
-/* PEDIDOS & LIGHTBOX */
-#pedidos { background-color: #ffffff; text-align: center; }
+/* CONTACTO (FORMULARIO) */
+#contacto { background-color: #ffffff; text-align: center; }
+.form-container { max-width: 600px; margin: 0 auto; padding: 20px; background: var(--color-primario); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.contact-form { display: flex; flex-direction: column; gap: 15px; text-align: left; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--color-secundario); }
+.form-group input, .form-group textarea { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-family: var(--fuente-texto); font-size: 1rem; }
+.form-group input:focus, .form-group textarea:focus { border-color: var(--color-acento); outline: none; }
 .links-contacto { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-top: 2rem; }
 .link-item { padding: 1rem 2rem; border: 2px solid var(--color-secundario); border-radius: 30px; text-decoration: none; color: var(--color-secundario); font-weight: 700; transition: all 0.3s ease; }
 .link-item:hover { background-color: var(--color-secundario); color: white; transform: scale(1.05); }
 
+/* LIGHTBOX & CARRITO */
 .lightbox { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); justify-content: center; align-items: center; padding: 20px; }
 .lightbox-wrapper { position: relative; max-width: 90%; max-height: 90%; display: flex; flex-direction: column; align-items: center; }
 .lightbox-contenido { max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 10px; animation: zoomIn 0.3s ease; }
 .lightbox-cerrar { position: absolute; top: 15px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; z-index: 2; }
 .info-producto { background: white; width: 100%; max-width: 500px; margin-top: 15px; padding: 15px; border-radius: 10px; text-align: center; color: var(--color-texto); box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-
-/* CARRITO */
 .carrito-flotante { position: fixed; bottom: 30px; right: 30px; background: var(--color-secundario); color: white; width: 65px; height: 65px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 28px; cursor: pointer; z-index: 2000; box-shadow: 0 4px 15px rgba(217, 74, 139, 0.5); transition: transform 0.3s; }
 .carrito-flotante:hover { transform: scale(1.1); }
 #carrito-contador { position: absolute; top: -5px; right: -5px; background: var(--color-acento); font-size: 14px; font-weight: bold; width: 25px; height: 25px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid white; }
@@ -91,14 +120,25 @@ header nav a:hover::after { width: 100%; }
 .btn-enviar:hover:not(:disabled) { background-color: #c5377a; }
 @keyframes zoomIn { from { transform: scale(0.8); } to { transform: scale(1); } }
 
+/* RESPONSIVE & MENU MOBILE */
 @media (max-width: 768px) {
-    header { flex-direction: column; padding: 1rem 0.5rem; gap: 1rem; }
-    .header-right { flex-direction: column; gap: 1rem; width: 100%; }
-    header .logo img { height: 70px; }
-    header nav ul { gap: 1rem; flex-wrap: wrap; justify-content: center; }
-    .hero { padding-top: 220px; }
+    .menu-toggle { display: block; z-index: 1001; }
+    
+    .header-right {
+        position: fixed; top: 0; right: -100%; width: 70%; height: 100vh;
+        background: white; flex-direction: column; justify-content: center;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.1); padding: 2rem;
+    }
+    
+    /* Clase para mostrar el menú */
+    .header-right.nav-active { right: 0; }
+    
+    header nav ul { flex-direction: column; gap: 2rem; text-align: center; }
+    header .logo img { height: 60px; }
+    
+    .hero { padding-top: 150px; }
     .carousel-container { height: 50vh; }
     .hero-text h1 { font-size: 3.5rem; }
-    h2 { font-size: 3rem !important; }
+    h2 { font-size: 2.5rem !important; }
     .about-container { flex-direction: column; }
 }

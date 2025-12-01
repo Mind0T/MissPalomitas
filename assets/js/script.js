@@ -1,13 +1,55 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     /* =========================================
+       0. UTILERÍAS DE INTERFAZ
+       ========================================= */
+    
+    // MENÚ HAMBURGUESA
+    const menuToggle = document.querySelector('.menu-toggle');
+    const headerRight = document.getElementById('navbar');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    if(menuToggle && headerRight) {
+        menuToggle.addEventListener('click', () => {
+            headerRight.classList.toggle('nav-active');
+            const icon = menuToggle.querySelector('i');
+            if(headerRight.classList.contains('nav-active')){
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            if(headerRight.classList.contains('nav-active')) {
+                headerRight.classList.remove('nav-active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    });
+
+    // LIMPIAR FORMULARIO AL REGRESAR DE FORMSPREE
+    // Esto se ejecuta si el usuario vuelve atrás en el navegador
+    window.addEventListener('pageshow', (event) => {
+        const form = document.querySelector('.contact-form');
+        if (form) {
+            form.reset();
+        }
+    });
+
+    /* =========================================
        CONFIGURACIÓN Y VARIABLES GLOBALES
        ========================================= */
-    // ⚠️ TU URL EXACTA Y DEFINITIVA:
     const API_URL = "https://script.google.com/macros/s/AKfycbz2QT736O4bygZwad4WUuEsKcOR0mzRlYD7oGR5q8qu8wxleXE40ohunNcS68GNGGal/exec";
 
-    let inventario = []; // Datos de stock desde Sheets
-    let carrito = [];    // Carrito de compras local
+    let inventario = []; 
+    let carrito = [];    
 
     /* =========================================
        1. CONEXIÓN CON GOOGLE SHEETS
@@ -91,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.querySelector('.lightbox-cerrar');
     const lightboxWrapper = document.querySelector('.lightbox-wrapper');
 
-    // Panel de Info
     const infoPanel = document.createElement('div');
     infoPanel.className = 'info-producto';
     infoPanel.innerHTML = `
@@ -114,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const img = item.querySelector('img');
                 const idProducto = item.getAttribute('data-id'); 
                 
-                // Buscar en DB (Coincidencia exacta)
                 productoActual = inventario.find(p => p.id === idProducto);
 
                 if (img) {
@@ -137,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             btnAgregar.style.backgroundColor = "#ccc";
                         }
                     } else {
-                        // Si no se encuentra (por ejemplo, si falló la carga inicial)
                         lbTitulo.innerText = "Consultando...";
                         lbStock.innerText = "-";
                         lbPrecio.innerText = "-";
@@ -245,17 +284,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (errores === 0) {
-            alert("¡Pedido registrado exitosamente! El stock se ha actualizado.");
-            carrito = [];
-            actualizarCarritoUI();
-            carritoModal.style.display = 'none';
-            cargarInventario(); // Recargar stock real
+            alert("¡Pedido registrado exitosamente! La página se actualizará para refrescar el stock.");
+            // Recargamos la página forzosamente para actualizar stock y limpiar todo
+            window.location.reload(); 
         } else {
-            alert("Hubo un error de conexión, pero intentaremos recargar el inventario.");
+            alert("Hubo un error de conexión, intentaremos recargar el inventario.");
             cargarInventario();
+            btnPagar.innerText = "Confirmar Pedido";
+            btnPagar.disabled = false;
         }
-        
-        btnPagar.innerText = "Confirmar Pedido";
-        btnPagar.disabled = false;
     });
 });
