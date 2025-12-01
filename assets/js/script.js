@@ -1,9 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* --- 1. CARRUSEL HERO --- */
+    /* =========================================
+       CONFIGURACIÓN Y VARIABLES GLOBALES
+       ========================================= */
+    // Tu URL exacta de Google Apps Script
+    const API_URL = "https://script.google.com/macros/s/AKfycbzI6QDF1hSByKeNQ3UswkZH8ebJLuXZhx6UBOvNAaRBNj85nhaj-Q7Wb5w7t5slIqzJ/exec";
+
+    let inventario = []; // Datos de stock desde Sheets
+    let carrito = [];    // Carrito de compras local
+
+    /* =========================================
+       1. CONEXIÓN CON GOOGLE SHEETS
+       ========================================= */
+    async function cargarInventario() {
+        console.log("Cargando inventario...");
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            inventario = data;
+            console.log("Stock actualizado:", inventario);
+        } catch (error) {
+            console.error("Error cargando DB:", error);
+            // Datos vacíos por si falla, evitar romper el sitio
+            inventario = []; 
+        }
+    }
+    cargarInventario();
+
+    /* =========================================
+       2. CARRUSEL HERO
+       ========================================= */
     const heroImages = document.querySelectorAll('.carousel-image');
     let heroIndex = 0;
-
     function rotateHero() {
         if(heroImages.length === 0) return;
         heroImages[heroIndex].classList.remove('active');
@@ -12,11 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if(heroImages.length > 0) setInterval(rotateHero, 4000);
 
-    /* --- 2. FILTRO DE SABORES --- */
+    /* =========================================
+       3. FILTRO DE SABORES
+       ========================================= */
     const filterBtns = document.querySelectorAll('.filtro-btn');
     const galeriaItems = document.querySelectorAll('.galeria-item');
 
-    // Función para aplicar filtro
     function applyFilter(category) {
         galeriaItems.forEach(item => {
             if(category === 'all' || item.getAttribute('data-category') === category) {
@@ -27,67 +56,203 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Inicialización: Aplicar filtro de la categoría activa por defecto
     const initialActiveBtn = document.querySelector('.filtro-btn.active');
     if (initialActiveBtn) {
         applyFilter(initialActiveBtn.getAttribute('data-filter'));
     }
 
-    // Event Listeners para los botones
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             filterBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            const categoria = btn.getAttribute('data-filter');
-            applyFilter(categoria);
+            applyFilter(btn.getAttribute('data-filter'));
         });
     });
 
-    /* --- 3. CARRUSEL DE VIDEOS (Puntitos) --- */
+    /* =========================================
+       4. CARRUSEL VIDEOS
+       ========================================= */
     const videos = document.querySelectorAll('.video-slide');
     const dots = document.querySelectorAll('.video-dot');
-
     function showVideo(index) {
-        // Quitar clase active a videos y dots
         videos.forEach(v => v.classList.remove('active'));
         dots.forEach(d => d.classList.remove('active'));
-        
-        // Activar el seleccionado
         if(videos[index]) videos[index].classList.add('active');
         if(dots[index]) dots[index].classList.add('active');
     }
+    dots.forEach((dot, index) => dot.addEventListener('click', () => showVideo(index)));
 
-    // Evento click en los puntitos
-    dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-            showVideo(index);
-        });
-    });
-
-    /* --- 4. LIGHTBOX GALERÍA --- */
+    /* =========================================
+       5. LIGHTBOX Y LÓGICA DE COMPRA
+       ========================================= */
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const closeBtn = document.querySelector('.lightbox-cerrar');
+    const lightboxWrapper = document.querySelector('.lightbox-wrapper');
+
+    // Crear Panel de Info Dinámico dentro del Lightbox
+    const infoPanel = document.createElement('div');
+    infoPanel.className = 'info-producto';
+    infoPanel.innerHTML = `
+        <h2 id="lb-titulo" style="font-family:'Sacramento', cursive; color:#D94A8B;">Cargando...</h2>
+        <p>Precio: <strong id="lb-precio" style="color:#54C5C3;">$0</strong></p>
+        <p>Disponibles: <span id="lb-stock">Verificando...</span></p>
+        <button id="btn-agregar-carrito" class="btn-enviar" style="margin-top:10px;">Agregar al Carrito</button>
+    `;
+    if(lightboxWrapper) lightboxWrapper.appendChild(infoPanel);
+
+    const lbTitulo = document.getElementById('lb-titulo');
+    const lbPrecio = document.getElementById('lb-precio');
+    const lbStock = document.getElementById('lb-stock');
+    const btnAgregar = document.getElementById('btn-agregar-carrito');
+    let productoActual = null;
 
     if(lightbox) {
         galeriaItems.forEach(item => {
             item.addEventListener('click', () => {
                 const img = item.querySelector('img');
-                if(img) {
+                const idProducto = item.getAttribute('data-id'); 
+                
+                // Buscar en DB (usando comparación estricta de string)
+                productoActual = inventario.find(p => p.id === idProducto);
+
+                if (img) {
                     lightboxImg.src = img.src;
                     lightbox.style.display = 'flex';
+                    
+                    if (productoActual) {
+                        lbTitulo.innerText = productoActual.nombre;
+                        lbPrecio.innerText = `$${productoActual.precio}`;
+                        lbStock.innerText = productoActual.stock;
+                        
+                        if (productoActual.stock > 0) {
+                            btnAgregar.disabled = false;
+                            btnAgregar.innerText = "Agregar al Carrito";
+                            btnAgregar.style.backgroundColor = "#D94A8B";
+                            btnAgregar.onclick = () => agregarAlCarrito(productoActual);
+                        } else {
+                            btnAgregar.disabled = true;
+                            btnAgregar.innerText = "Agotado";
+                            btnAgregar.style.backgroundColor = "#ccc";
+                        }
+                    } else {
+                        // Si no encuentra el producto en sheets
+                        lbTitulo.innerText = "Sabor disponible";
+                        lbStock.innerText = "Consultar disponibilidad";
+                        lbPrecio.innerText = "-";
+                        btnAgregar.disabled = true;
+                        btnAgregar.style.backgroundColor = "#ccc";
+                    }
                 }
             });
         });
 
-        closeBtn.addEventListener('click', () => {
-            lightbox.style.display = 'none';
-        });
+        const cerrarLightbox = () => lightbox.style.display = 'none';
+        closeBtn.addEventListener('click', cerrarLightbox);
+        lightbox.addEventListener('click', (e) => { if(e.target === lightbox) cerrarLightbox(); });
+    }
 
-        lightbox.addEventListener('click', (e) => {
-            if(e.target === lightbox) {
-                lightbox.style.display = 'none';
-            }
+    /* =========================================
+       6. LÓGICA DEL CARRITO
+       ========================================= */
+    const carritoBtn = document.getElementById('carrito-btn');
+    const carritoModal = document.getElementById('modal-carrito');
+    const cerrarCarrito = document.querySelector('.cerrar-carrito');
+    const listaItems = document.getElementById('lista-items');
+    const totalElement = document.getElementById('carrito-total');
+    const contadorElement = document.getElementById('carrito-contador');
+    const btnPagar = document.getElementById('btn-pagar');
+
+    function agregarAlCarrito(producto) {
+        carrito.push(producto);
+        actualizarCarritoUI();
+        
+        const btn = document.getElementById('btn-agregar-carrito');
+        const prevText = btn.innerText;
+        btn.innerText = "¡Agregado!";
+        setTimeout(() => { 
+            if(btn.innerText === "¡Agregado!") btn.innerText = prevText; 
+            lightbox.style.display = 'none'; 
+        }, 700);
+    }
+
+    function actualizarCarritoUI() {
+        contadorElement.innerText = carrito.length;
+        listaItems.innerHTML = '';
+        let total = 0;
+
+        if (carrito.length === 0) {
+            listaItems.innerHTML = '<p>Carrito vacío.</p>';
+        } else {
+            carrito.forEach((prod, index) => {
+                total += parseInt(prod.precio);
+                const itemDiv = document.createElement('div');
+                itemDiv.style.borderBottom = '1px solid #eee';
+                itemDiv.style.padding = '10px 0';
+                itemDiv.style.display = 'flex';
+                itemDiv.style.justifyContent = 'space-between';
+                itemDiv.innerHTML = `
+                    <span>${prod.nombre}</span>
+                    <span>$${prod.precio}</span>
+                    <span class="btn-eliminar" data-index="${index}" style="color:red; cursor:pointer; font-weight:bold;">&times;</span>
+                `;
+                listaItems.appendChild(itemDiv);
+            });
+        }
+        totalElement.innerText = total;
+
+        document.querySelectorAll('.btn-eliminar').forEach(b => {
+            b.addEventListener('click', (e) => {
+                const idx = e.target.getAttribute('data-index');
+                carrito.splice(idx, 1);
+                actualizarCarritoUI();
+            });
         });
     }
+
+    if(carritoBtn) carritoBtn.addEventListener('click', () => carritoModal.style.display = 'flex');
+    if(cerrarCarrito) cerrarCarrito.addEventListener('click', () => carritoModal.style.display = 'none');
+    window.addEventListener('click', (e) => { if(e.target === carritoModal) carritoModal.style.display = 'none'; });
+
+    /* =========================================
+       7. PROCESAR PAGO (POST A GOOGLE SHEETS)
+       ========================================= */
+    if(btnPagar) btnPagar.addEventListener('click', async () => {
+        if(carrito.length === 0) return alert("Agrega productos primero.");
+
+        btnPagar.innerText = "Procesando...";
+        btnPagar.disabled = true;
+
+        let errores = 0;
+
+        // Procesamos cada ítem del carrito
+        for (const item of carrito) {
+            const datosCompra = { id: item.id, cantidad: 1 };
+            
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(datosCompra)
+                });
+            } catch (e) {
+                console.error("Error comprando:", e);
+                errores++;
+            }
+        }
+
+        if (errores === 0) {
+            alert("¡Pedido registrado exitosamente! El stock se ha actualizado.");
+            carrito = [];
+            actualizarCarritoUI();
+            carritoModal.style.display = 'none';
+            cargarInventario(); // Recargar stock real
+        } else {
+            alert("Hubo un error de conexión. Inténtalo de nuevo.");
+        }
+        
+        btnPagar.innerText = "Confirmar Pedido";
+        btnPagar.disabled = false;
+    });
 });
