@@ -202,8 +202,17 @@
         <div class="modal-contenido">
             <span class="cerrar-carrito">&times;</span>
             <h2>Tu Carrito</h2>
+            
             <div id="lista-items"></div>
+            
             <p class="total-texto">Total estimado: $<span id="carrito-total">0</span></p>
+            
+            <div class="datos-cliente" style="margin-bottom: 1.5rem; text-align: left;">
+                <label style="font-weight: bold; color: #D94A8B; display: block; margin-bottom: 5px;">Tus Datos:</label>
+                <input type="text" id="cliente-nombre" placeholder="Nombre completo" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit;">
+                <input type="tel" id="cliente-telefono" placeholder="Teléfono de contacto" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit;">
+            </div>
+
             <button id="btn-pagar" class="btn-enviar">Confirmar Pedido</button>
         </div>
     </div>

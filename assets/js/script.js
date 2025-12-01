@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================================
        CONFIGURACIÓN Y VARIABLES GLOBALES
        ========================================= */
-    // ⚠️ ATENCIÓN: PEGA AQUÍ TU NUEVA URL DE APPS SCRIPT
-    const API_URL = "https://script.google.com/macros/s/AKfycbynj1fx33l3im1vBnU6k1PjTWOEJNxdwmwilBKDHNYQb6Olv_tv77T0HbLmq5-ouSjO/exec";
+    // ⚠️ PEGA AQUÍ TU NUEVA URL DE APPS SCRIPT
+    const API_URL = "https://script.google.com/macros/s/AKfycbxl-RldBgiqFgM4_TKxkE0pjDPh784vhZgv9UxnA6wD5hzspJYn-nNjLxcFJY0jeEtW/exec";
     
     const WHATSAPP_NUMBER = "525514732501"; 
 
@@ -53,25 +53,27 @@ document.addEventListener('DOMContentLoaded', () => {
        ========================================= */
     async function cargarInventario() {
         try {
-            console.log("Cargando inventario...");
+            console.log("Cargando inventario actualizado...");
             const response = await fetch(API_URL);
             if (!response.ok) throw new Error("Error servidor");
             
             const data = await response.json();
             
-            // Aseguramos que los tipos de datos sean correctos (Números)
+            // Convertimos datos a números para evitar errores lógicos
             inventario = data.map(prod => ({
                 ...prod,
                 precio: Number(prod.precio),
                 stock: Number(prod.stock)
             }));
             
-            console.log("Inventario cargado:", inventario);
+            console.log("Inventario sincronizado:", inventario);
         } catch (error) {
             console.error("Error cargando inventario:", error);
-            inventario = []; 
+            // Si falla, no borramos el inventario anterior por seguridad
+            if(inventario.length === 0) inventario = []; 
         }
     }
+    // Carga inicial
     cargarInventario();
 
     /* =========================================
@@ -135,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.querySelector('.lightbox-cerrar');
     const lightboxWrapper = document.querySelector('.lightbox-wrapper');
 
-    // Creamos el panel de info dinámicamente
     const infoPanel = document.createElement('div');
     infoPanel.className = 'info-producto';
     infoPanel.innerHTML = `
@@ -152,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     if(lightboxWrapper) lightboxWrapper.appendChild(infoPanel);
 
-    // Referencias a los elementos creados
     const lbTitulo = document.getElementById('lb-titulo');
     const lbPrecio = document.getElementById('lb-precio');
     const lbStock = document.getElementById('lb-stock');
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const img = item.querySelector('img');
                 const idProducto = item.getAttribute('data-id'); 
                 
-                // Buscamos en el inventario cargado de Sheets
+                // Siempre buscamos en 'inventario' que puede haber sido actualizado tras una compra
                 productoActual = inventario.find(p => p.id === idProducto);
                 lbCantidad.value = 1;
 
@@ -175,16 +175,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     lightbox.style.display = 'flex';
                     
                     if (productoActual) {
-                        // AQUÍ CORREGIMOS LA VISUALIZACIÓN
                         lbTitulo.innerText = productoActual.nombre;
-                        lbPrecio.innerText = `$${productoActual.precio}`; // Asegura que muestre el precio
-                        lbStock.innerText = productoActual.stock;       // Asegura que muestre el stock
+                        lbPrecio.innerText = `$${productoActual.precio}`;
+                        lbStock.innerText = productoActual.stock;
                         
                         if (productoActual.stock > 0) {
                             btnAgregar.disabled = false;
                             btnAgregar.innerText = "Agregar al Carrito";
                             btnAgregar.style.backgroundColor = "#D94A8B";
-                            // Pasamos el objeto productoActual al carrito
                             btnAgregar.onclick = () => agregarAlCarrito(productoActual, parseInt(lbCantidad.value));
                         } else {
                             btnAgregar.disabled = true;
@@ -192,12 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             btnAgregar.style.backgroundColor = "#ccc";
                         }
                     } else {
-                        // Caso fallback si el ID del HTML no coincide con el Sheet
                         lbTitulo.innerText = "Producto no encontrado"; 
                         lbPrecio.innerText = "-";
                         lbStock.innerText = "-";
                         btnAgregar.disabled = true;
-                        console.warn(`El ID "${idProducto}" no existe en el Google Sheet.`);
                     }
                 }
             });
@@ -219,21 +215,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const contadorElement = document.getElementById('carrito-contador');
     const btnPagar = document.getElementById('btn-pagar');
 
+    // Referencias a los nuevos inputs
+    const inputNombre = document.getElementById('cliente-nombre');
+    const inputTelefono = document.getElementById('cliente-telefono');
+
     function agregarAlCarrito(producto, cantidadInput) {
-        // Verificamos si ya existe para sumar cantidad
         const existe = carrito.find(item => item.id === producto.id);
         
-        // Validación de stock local (para no pedir más de lo que hay visualmente)
         let cantidadActualEnCarrito = existe ? existe.cantidad : 0;
+        
         if ((cantidadActualEnCarrito + cantidadInput) > producto.stock) {
-            alert(`Solo hay ${producto.stock} unidades disponibles.`);
+            alert(`Solo hay ${producto.stock} unidades disponibles de este sabor.`);
             return;
         }
 
         if (existe) {
             existe.cantidad += cantidadInput;
         } else {
-            // Guardamos ID, nombre, precio y la cantidad solicitada
             carrito.push({ 
                 id: producto.id,
                 nombre: producto.nombre,
@@ -243,7 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         actualizarCarritoUI();
         
-        // Feedback visual en el botón
         const btn = document.getElementById('btn-agregar-carrito');
         const prevText = btn.innerText;
         btn.innerText = "¡Agregado!";
@@ -297,32 +294,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* =========================================
-       6.5 ACTIVAR BOTÓN FLOTANTE
-       ========================================= */
-    if(carritoBtn) {
-        carritoBtn.addEventListener('click', () => {
-            carritoModal.style.display = 'flex';
-        });
-    }
-
-    if(cerrarCarrito) {
-        cerrarCarrito.addEventListener('click', () => {
-            carritoModal.style.display = 'none';
-        });
-    }
-
-    window.addEventListener('click', (e) => {
-        if(e.target === carritoModal) {
-            carritoModal.style.display = 'none';
-        }
-    });
+    if(carritoBtn) carritoBtn.addEventListener('click', () => carritoModal.style.display = 'flex');
+    if(cerrarCarrito) cerrarCarrito.addEventListener('click', () => carritoModal.style.display = 'none');
+    window.addEventListener('click', (e) => { if(e.target === carritoModal) carritoModal.style.display = 'none'; });
 
     /* =========================================
        7. PROCESAR PEDIDO (DB + WHATSAPP)
        ========================================= */
     if(btnPagar) btnPagar.addEventListener('click', async () => {
-        if(carrito.length === 0) return alert("Agrega productos primero.");
+        if(carrito.length === 0) return alert("Tu carrito está vacío.");
+
+        // 1. VALIDACIÓN DE CAMPOS
+        const clienteNombre = inputNombre.value.trim();
+        const clienteTelefono = inputTelefono.value.trim();
+
+        if (!clienteNombre || !clienteTelefono) {
+            alert("Por favor, ingresa tu Nombre y Teléfono para confirmar el pedido.");
+            return;
+        }
 
         const textoOriginal = btnPagar.innerText;
         btnPagar.innerText = "Procesando...";
@@ -331,37 +320,43 @@ document.addEventListener('DOMContentLoaded', () => {
         const resumenPedido = carrito.map(item => `${item.cantidad} x ${item.nombre}`).join(", ");
         const totalPagar = document.getElementById('carrito-total').innerText;
         
-        // Objeto que se enviará al Apps Script
+        // 2. OBJETO DE DATOS (Incluyendo Nombre y Teléfono)
         const orden = {
             fecha: new Date().toLocaleString(),
             detalle: resumenPedido,
+            nombre: clienteNombre,     // Para la DB
+            telefono: clienteTelefono, // Para la DB
             total: totalPagar,
-            // IMPORTANTE: Enviamos el array completo para poder restar stock en el backend
             items: carrito, 
             accion: "nuevo_pedido" 
         };
 
         const irAWhatsApp = () => {
-            let mensajeWhatsApp = `Hola Miss Palomitas 🍿, quiero realizar el siguiente pedido:\n\n`;
+            let mensajeWhatsApp = `Hola Miss Palomitas 🍿, soy *${clienteNombre}*.\nQuiero realizar el siguiente pedido:\n\n`;
             carrito.forEach(item => {
                 mensajeWhatsApp += `▪️ ${item.cantidad} x ${item.nombre} ($${item.precio * item.cantidad})\n`;
             });
             mensajeWhatsApp += `\n*Total a pagar: $${totalPagar}*`;
+            mensajeWhatsApp += `\n\nMis datos de contacto:\nTel: ${clienteTelefono}`;
             mensajeWhatsApp += `\n\nQuedo pendiente para coordinar el pago y la entrega. ¡Gracias!`;
 
             const urlWhatsApp = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeWhatsApp)}`;
             
-            // Limpiamos carrito y UI
+            // 3. LIMPIEZA INTERNA
             carrito = [];
             actualizarCarritoUI();
+            inputNombre.value = '';
+            inputTelefono.value = '';
             carritoModal.style.display = 'none';
             
-            window.location.href = urlWhatsApp;
+            // 4. ABRIR WHATSAPP EN NUEVA PESTAÑA Y RECARGAR STOCK
+            window.open(urlWhatsApp, '_blank');
+            
+            // 5. RECARGAR INVENTARIO AUTOMÁTICAMENTE (Esto actualiza los stocks sin F5)
+            cargarInventario(); 
         };
 
         try {
-            // Usamos mode: 'no-cors' para evitar errores de CORS con Google Apps Script,
-            // aunque esto impide leer la respuesta JSON, la acción se ejecuta.
             await fetch(API_URL, {
                 method: 'POST',
                 mode: 'no-cors', 
@@ -369,15 +364,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(orden)
             });
 
-            // Pequeña pausa para asegurar que el script de Google procese antes de salir
+            // Feedback visual antes de abrir WA
             setTimeout(() => {
-                alert("¡Pedido registrado correctamente! Redirigiendo a WhatsApp...");
+                alert("¡Pedido registrado! Abriendo WhatsApp...");
                 irAWhatsApp();
-            }, 1000);
+            }, 500);
 
         } catch (error) {
             console.error("Error al enviar pedido:", error);
-            alert("Hubo un error de conexión, pero te llevaremos a WhatsApp para completar el pedido.");
+            alert("Hubo un error de conexión, pero te llevaremos a WhatsApp.");
             irAWhatsApp();
         } finally {
             btnPagar.innerText = textoOriginal;
