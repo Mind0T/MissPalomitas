@@ -64,32 +64,39 @@ header nav a:hover::after { width: 100%; }
     .sabor-nombre { transform: translateY(0); padding: 5px; font-size: 1rem; }
 }
 
-/* VIDEOS (SCROLL HORIZONTAL) */
+/* VIDEOS (SCROLL HORIZONTAL UNO POR UNO) */
 #videos { background-color: var(--color-primario); text-align: center; }
+
 .video-scroll-container {
     display: flex;
     overflow-x: auto;
-    gap: 1.5rem;
-    padding: 1rem 0;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch; /* Suavidad en iOS */
-    max-width: 100%;
+    scroll-snap-type: x mandatory; /* Fuerza a detenerse en cada video */
+    -webkit-overflow-scrolling: touch; 
+    width: 100%;
+    max-width: 800px; /* Ancho máximo para desktop */
+    margin: 0 auto;
+    scrollbar-width: none; /* Oculta barra en Firefox */
 }
+.video-scroll-container::-webkit-scrollbar { display: none; /* Oculta barra en Chrome/Safari */ }
+
 .video-card {
-    flex: 0 0 85%; /* En móvil ocupa el 85% para ver el siguiente */
-    max-width: 600px;
-    aspect-ratio: 9 / 16; /* Formato vertical tipo Short/TikTok */
+    flex: 0 0 100%; /* Ocupa el 100% del contenedor */
     scroll-snap-align: center;
+    aspect-ratio: 16 / 9; /* Formato Youtube Normal */
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     background: #000;
 }
-@media (min-width: 768px) {
-    .video-card { flex: 0 0 400px; } /* Tamaño fijo en desktop */
-    .video-scroll-container { justify-content: center; } /* Centrado si caben todos */
-}
+
 .video-card iframe { width: 100%; height: 100%; }
+
+/* Controles de puntos (Dots) */
+.video-dots-container { display: flex; justify-content: center; gap: 12px; margin-top: 15px; }
+.video-dot { width: 12px; height: 12px; background-color: #ddd; border-radius: 50%; cursor: pointer; transition: all 0.3s ease; }
+.video-dot:hover { background-color: var(--color-acento); }
+.video-dot.active { background-color: var(--color-secundario); transform: scale(1.3); }
+
 
 /* NOSOTROS & CONTACTO */
 .about-container { display: flex; align-items: center; gap: 3rem; }
@@ -111,38 +118,13 @@ header nav a:hover::after { width: 100%; }
 footer { text-align: center; padding: 2rem; background: var(--color-secundario); color: white; }
 footer p { font-size: 0.9rem; margin: 0; }
 
-/* LIGHTBOX MODIFICADO (SCROLL Y NAV) */
+/* LIGHTBOX */
 .lightbox { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); justify-content: center; align-items: center; padding: 10px; }
-
-.lightbox-wrapper {
-    position: relative;
-    max-width: 95%;
-    /* FIX IPAD HORIZONTAL: Max height y scroll si el contenido es muy alto */
-    max-height: 90vh; 
-    overflow-y: auto; 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: transparent; /* El fondo blanco lo tiene el info-producto */
-    border-radius: 10px;
-    padding: 10px;
-    /* Scrollbar invisible pero funcional */
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-secundario) transparent;
-}
-
+.lightbox-wrapper { position: relative; max-width: 95%; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: transparent; border-radius: 10px; padding: 10px; scrollbar-width: thin; scrollbar-color: var(--color-secundario) transparent; }
 .lightbox-contenido { max-width: 100%; max-height: 50vh; object-fit: contain; border-radius: 10px; }
-
 .info-producto { background: white; width: 100%; max-width: 400px; margin-top: 15px; padding: 15px; border-radius: 10px; text-align: center; color: var(--color-texto); box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
 
-/* Botones de navegación Lightbox */
-.lightbox-nav {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    color: white; font-size: 2rem; cursor: pointer; padding: 20px;
-    z-index: 10001; transition: transform 0.2s;
-    background: rgba(0,0,0,0.3); border-radius: 50%; width: 50px; height: 50px;
-    display: flex; justify-content: center; align-items: center;
-}
+.lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 2rem; cursor: pointer; padding: 20px; z-index: 10001; transition: transform 0.2s; background: rgba(0,0,0,0.3); border-radius: 50%; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; }
 .lightbox-nav:hover { background: rgba(217, 74, 139, 0.8); transform: translateY(-50%) scale(1.1); }
 .nav-prev { left: 10px; }
 .nav-next { right: 10px; }
@@ -151,7 +133,6 @@ footer p { font-size: 0.9rem; margin: 0; }
     .lightbox-nav { font-size: 1.5rem; width: 40px; height: 40px; padding: 10px; top: unset; bottom: 20px; transform: none; }
     .nav-prev { left: 20px; }
     .nav-next { right: 20px; }
-    .lightbox-nav:hover { transform: scale(1.1); }
     .lightbox-contenido { max-height: 40vh; }
 }
 
@@ -168,14 +149,10 @@ footer p { font-size: 0.9rem; margin: 0; }
 .btn-enviar:disabled { background-color: #ccc; cursor: not-allowed; }
 .btn-enviar:hover:not(:disabled) { background-color: #c5377a; }
 
-/* RESPONSIVE TABLET/MOBILE MENU */
+/* RESPONSIVE MENU */
 @media (max-width: 768px) {
     .menu-toggle { display: block; z-index: 1001; }
-    .header-right {
-        position: fixed; top: 0; right: -100%; width: 70%; height: 100vh;
-        background: white; flex-direction: column; justify-content: center;
-        box-shadow: -5px 0 15px rgba(0,0,0,0.1); padding: 2rem;
-    }
+    .header-right { position: fixed; top: 0; right: -100%; width: 70%; height: 100vh; background: white; flex-direction: column; justify-content: center; box-shadow: -5px 0 15px rgba(0,0,0,0.1); padding: 2rem; }
     .header-right.nav-active { right: 0; }
     header nav ul { flex-direction: column; gap: 2rem; text-align: center; }
     header .logo img { height: 60px; }

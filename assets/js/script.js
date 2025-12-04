@@ -41,8 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
        CONFIGURACIÓN Y VARIABLES GLOBALES
        ========================================= */
     const API_URL = "https://script.google.com/macros/s/AKfycbxl-RldBgiqFgM4_TKxkE0pjDPh784vhZgv9UxnA6wD5hzspJYn-nNjLxcFJY0jeEtW/exec";
-    
-    // Solo el número, sin símbolos, para la API de WhatsApp
     const WHATSAPP_NUMBER = "525514732501"; 
 
     let inventario = []; 
@@ -54,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function cargarInventario() {
         try {
             console.log("Sincronizando inventario...");
-            // Agregamos timestamp para evitar caché del navegador (Fix de Stock)
             const response = await fetch(`${API_URL}?nocache=${Date.now()}`);
             if (!response.ok) throw new Error("Error servidor");
             
@@ -72,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if(inventario.length === 0) inventario = []; 
         }
     }
-    // Carga inicial
     cargarInventario();
 
     /* =========================================
@@ -89,11 +85,48 @@ document.addEventListener('DOMContentLoaded', () => {
     if(heroImages.length > 0) setInterval(rotateHero, 4000);
 
     /* =========================================
-       3. FILTRO DE SABORES
+       3. LOGICA VIDEO (SCROLL + PUNTOS)
+       ========================================= */
+    const videoContainer = document.getElementById('video-scroll-container');
+    const videoDots = document.querySelectorAll('.video-dot');
+
+    // Función para actualizar el punto activo según el scroll
+    function updateActiveDot() {
+        if(!videoContainer) return;
+        
+        // Calculamos qué video está visible (scrollLeft / ancho del contenedor)
+        const scrollPosition = videoContainer.scrollLeft;
+        const width = videoContainer.clientWidth;
+        const index = Math.round(scrollPosition / width);
+
+        videoDots.forEach((dot, i) => {
+            if(i === index) dot.classList.add('active');
+            else dot.classList.remove('active');
+        });
+    }
+
+    if(videoContainer) {
+        // Escuchar el evento scroll
+        videoContainer.addEventListener('scroll', updateActiveDot);
+
+        // Click en los puntos para ir al video
+        videoDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                const width = videoContainer.clientWidth;
+                videoContainer.scrollTo({
+                    left: width * index,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    }
+
+
+    /* =========================================
+       4. FILTRO DE SABORES
        ========================================= */
     const filterBtns = document.querySelectorAll('.filtro-btn');
     const galeriaItems = document.querySelectorAll('.galeria-item');
-    // Guardamos la lista de items visibles actual para la navegación del lightbox
     let itemsVisibles = []; 
 
     function applyFilter(category) {
@@ -120,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* =========================================
-       4. LIGHTBOX Y NAVEGACIÓN
+       5. LIGHTBOX Y NAVEGACIÓN
        ========================================= */
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
@@ -145,14 +178,13 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     if(lightboxWrapper) lightboxWrapper.appendChild(infoPanel);
 
-    // Elementos internos del panel
     const lbTitulo = document.getElementById('lb-titulo');
     const lbPrecio = document.getElementById('lb-precio');
     const lbStock = document.getElementById('lb-stock');
     const lbCantidad = document.getElementById('lb-cantidad');
     const btnAgregar = document.getElementById('btn-agregar-carrito');
     
-    let currentItemIndex = 0; // Para saber qué item de 'itemsVisibles' estamos viendo
+    let currentItemIndex = 0; 
 
     function abrirLightbox(index) {
         if(index < 0 || index >= itemsVisibles.length) return;
@@ -162,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const img = item.querySelector('img');
         const idProducto = item.getAttribute('data-id');
 
-        // Buscar datos actualizados en inventario
         const productoActual = inventario.find(p => p.id === idProducto);
         lbCantidad.value = 1;
 
@@ -190,27 +221,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Eventos Click en Galería
     galeriaItems.forEach(item => {
         item.addEventListener('click', () => {
-            // Buscar el índice de este item dentro de los visibles actualmente
             const index = itemsVisibles.indexOf(item);
             if(index !== -1) abrirLightbox(index);
         });
     });
 
-    // Navegación Flechas
     if(prevBtn) prevBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         let newIndex = currentItemIndex - 1;
-        if(newIndex < 0) newIndex = itemsVisibles.length - 1; // Loop al final
+        if(newIndex < 0) newIndex = itemsVisibles.length - 1; 
         abrirLightbox(newIndex);
     });
 
     if(nextBtn) nextBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         let newIndex = currentItemIndex + 1;
-        if(newIndex >= itemsVisibles.length) newIndex = 0; // Loop al inicio
+        if(newIndex >= itemsVisibles.length) newIndex = 0; 
         abrirLightbox(newIndex);
     });
 
@@ -219,14 +247,13 @@ document.addEventListener('DOMContentLoaded', () => {
     lightbox.addEventListener('click', (e) => { if(e.target === lightbox) cerrarLightbox(); });
 
     /* =========================================
-       5. LÓGICA DEL CARRITO
+       6. LÓGICA DEL CARRITO
        ========================================= */
     const carritoBtn = document.getElementById('carrito-btn');
     const carritoModal = document.getElementById('modal-carrito');
     const cerrarCarrito = document.querySelector('.cerrar-carrito');
     const cerrarExito = document.getElementById('cerrar-exito');
     
-    // Contenedores internos del modal
     const modalContenidoCarrito = document.getElementById('modal-carrito-contenido');
     const modalContenidoExito = document.getElementById('modal-exito');
 
@@ -261,13 +288,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         actualizarCarritoUI();
         
-        // Feedback visual en botón
         const btn = document.getElementById('btn-agregar-carrito');
         const prevText = btn.innerText;
         btn.innerText = "¡Agregado!";
         setTimeout(() => { 
             if(btn.innerText === "¡Agregado!") btn.innerText = prevText; 
-            // No cerramos el lightbox automáticamente si el usuario quiere seguir navegando con las flechas
         }, 700);
     }
 
@@ -316,14 +341,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetModal() {
+        // Restaurar estado visual del modal
         modalContenidoCarrito.style.display = 'block';
         modalContenidoExito.style.display = 'none';
         carritoModal.style.display = 'none';
+        
+        // CORRECCIÓN CLAVE: Restaurar el botón para el siguiente pedido
+        btnPagar.innerText = "Confirmar Pedido";
+        btnPagar.disabled = false;
     }
 
     if(carritoBtn) carritoBtn.addEventListener('click', () => {
+        // Aseguramos que se muestre el carrito y no el mensaje de éxito anterior
         modalContenidoCarrito.style.display = 'block';
         modalContenidoExito.style.display = 'none';
+        
+        // Aseguramos que el botón esté listo
+        btnPagar.innerText = "Confirmar Pedido";
+        btnPagar.disabled = false;
+        
         carritoModal.style.display = 'flex';
     });
     
@@ -335,12 +371,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* =========================================
-       6. PROCESAR PEDIDO (CONCURRENCIA + WHATSAPP FIX)
+       7. PROCESAR PEDIDO
        ========================================= */
     if(btnPagar) btnPagar.addEventListener('click', async () => {
         if(carrito.length === 0) return alert("Tu carrito está vacío.");
 
-        // 1. Validar Datos
         const clienteNombre = inputNombre.value.trim();
         const clienteTelefono = inputTelefono.value.trim();
 
@@ -349,13 +384,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const textoOriginal = btnPagar.innerText;
+        const textoOriginal = "Confirmar Pedido";
         btnPagar.innerText = "Verificando stock...";
         btnPagar.disabled = true;
 
         try {
-            // 2. VERIFICACIÓN DE STOCK (Anti-Concurrencia)
-            // Volvemos a pedir el inventario a Google Sheets antes de procesar
+            // Verificar Stock
             await cargarInventario(); 
 
             let stockInsuficiente = false;
@@ -373,13 +407,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (stockInsuficiente) {
-                alert("⚠️ ¡Atención! El stock ha cambiado mientras comprabas:\n\n" + mensajeError + "\nPor favor ajusta tu pedido.");
+                alert("⚠️ ¡Atención! El stock ha cambiado:\n\n" + mensajeError + "\nPor favor ajusta tu pedido.");
                 btnPagar.innerText = textoOriginal;
                 btnPagar.disabled = false;
-                return; // Cancelar proceso
+                return; 
             }
 
-            // 3. SI HAY STOCK, PREPARAMOS DATOS
+            // Datos de Orden
             const totalPagar = document.getElementById('carrito-total').innerText;
             const resumenPedido = carrito.map(item => `${item.cantidad} x ${item.nombre}`).join(", ");
             
@@ -393,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 accion: "nuevo_pedido" 
             };
 
-            // 4. GENERAR LINK DE WHATSAPP
+            // Link WhatsApp
             let mensajeWhatsApp = `Hola Miss Palomitas 🍿, soy *${clienteNombre}*.\nQuiero realizar el siguiente pedido:\n\n`;
             carrito.forEach(item => {
                 mensajeWhatsApp += `▪️ ${item.cantidad} x ${item.nombre} ($${item.precio * item.cantidad})\n`;
@@ -404,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const urlWhatsApp = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeWhatsApp)}`;
 
-            // 5. ENVIAR A GOOGLE SHEETS (Descontar Stock)
+            // Enviar a DB
             btnPagar.innerText = "Registrando...";
             await fetch(API_URL, {
                 method: 'POST',
@@ -413,20 +447,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(orden)
             });
 
-            // 6. ÉXITO: MOSTRAR MODAL CON BOTÓN MANUAL (Fix para iPad/Popups)
+            // ÉXITO
             carrito = [];
             actualizarCarritoUI();
             inputNombre.value = '';
             inputTelefono.value = '';
 
-            // Cambiar vista del modal
             modalContenidoCarrito.style.display = 'none';
             modalContenidoExito.style.display = 'block';
             
-            // Asignar el link al botón
             btnManualWhatsApp.href = urlWhatsApp;
 
-            // Recargar inventario visualmente por si el usuario sigue en la página
+            // Recargar inventario (para la siguiente compra)
             cargarInventario();
 
         } catch (error) {

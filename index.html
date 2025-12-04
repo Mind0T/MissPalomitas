@@ -119,17 +119,21 @@
         <section id="videos">
             <div class="container">
                 <h2>Experiencias en Video</h2>
-                <div class="video-scroll-container">
+                
+                <div class="video-scroll-container" id="video-scroll-container">
                     <div class="video-card">
-                        <iframe src="https://www.youtube.com/embed/8njA6QqjYXg" title="Miss Palomitas Short 1" frameborder="0" allowfullscreen></iframe>
+                        <iframe src="https://www.youtube.com/embed/8njA6QqjYXg" title="Miss Palomitas Video 1" frameborder="0" allowfullscreen></iframe>
                     </div>
                     <div class="video-card">
-                        <iframe src="https://www.youtube.com/embed/PFM4HxGWdRg" title="Video 2" frameborder="0" allowfullscreen></iframe>
+                        <iframe src="https://www.youtube.com/embed/PFM4HxGWdRg" title="Miss Palomitas Video 2" frameborder="0" allowfullscreen></iframe>
                     </div>
-                    </div>
-                <p style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: #666;">
-                    <i class="fa-solid fa-arrows-left-right"></i> Desliza para ver más
-                </p>
+                </div>
+
+                <div class="video-dots-container" id="video-dots">
+                    <span class="video-dot active" data-index="0"></span>
+                    <span class="video-dot" data-index="1"></span>
+                </div>
+
             </div>
         </section>
 
@@ -188,17 +192,13 @@
     <div id="lightbox" class="lightbox">
         <span class="lightbox-cerrar">&times;</span>
         
-        <div class="lightbox-nav nav-prev" id="lb-prev">
-            <i class="fa-solid fa-chevron-left"></i>
-        </div>
+        <div class="lightbox-nav nav-prev" id="lb-prev"><i class="fa-solid fa-chevron-left"></i></div>
 
         <div class="lightbox-wrapper">
             <img class="lightbox-contenido" id="lightbox-img" alt="Imagen ampliada">
-            </div>
-
-        <div class="lightbox-nav nav-next" id="lb-next">
-            <i class="fa-solid fa-chevron-right"></i>
         </div>
+
+        <div class="lightbox-nav nav-next" id="lb-next"><i class="fa-solid fa-chevron-right"></i></div>
     </div>
 
     <div id="carrito-btn" class="carrito-flotante">
@@ -233,7 +233,7 @@
                     Hemos recibido tu orden y estamos verificando la disponibilidad.
                 </p>
                 <p style="margin-bottom: 1.5rem; font-size: 0.9rem; color: #555;">
-                    Si no se abrió tu chat automáticamente, por favor presiona el botón de abajo o envía un mensaje al <strong>55 1473 2501</strong>.
+                    Por favor presiona el botón de abajo o envía un mensaje al <strong>55 1473 2501</strong>.
                 </p>
                 
                 <a id="btn-manual-whatsapp" href="#" target="_blank" class="btn-enviar" style="background-color: #25D366; text-decoration: none; display: inline-block; color: white;">
