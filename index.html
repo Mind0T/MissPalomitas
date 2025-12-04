@@ -119,18 +119,17 @@
         <section id="videos">
             <div class="container">
                 <h2>Experiencias en Video</h2>
-                <div class="video-carousel-wrapper">
-                    <div class="video-slide active">
-                        <iframe src="https://www.youtube.com/embed/8njA6QqjYXg" title="Miss Palomitas Short" frameborder="0" allowfullscreen></iframe>
+                <div class="video-scroll-container">
+                    <div class="video-card">
+                        <iframe src="https://www.youtube.com/embed/8njA6QqjYXg" title="Miss Palomitas Short 1" frameborder="0" allowfullscreen></iframe>
                     </div>
-                    <div class="video-slide">
+                    <div class="video-card">
                         <iframe src="https://www.youtube.com/embed/PFM4HxGWdRg" title="Video 2" frameborder="0" allowfullscreen></iframe>
                     </div>
-                </div>
-                <div class="video-dots-container">
-                    <span class="video-dot active" data-index="0"></span>
-                    <span class="video-dot" data-index="1"></span>
-                </div>
+                    </div>
+                <p style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: #666;">
+                    <i class="fa-solid fa-arrows-left-right"></i> Desliza para ver más
+                </p>
             </div>
         </section>
 
@@ -183,13 +182,22 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Miss Palomitas. Todos los derechos reservados.</p>
+        <p>Powered by Eivind Leso, Miss Palomitas | Jandy Martinez. Todos los derechos reservados.</p>
     </footer>
 
     <div id="lightbox" class="lightbox">
         <span class="lightbox-cerrar">&times;</span>
+        
+        <div class="lightbox-nav nav-prev" id="lb-prev">
+            <i class="fa-solid fa-chevron-left"></i>
+        </div>
+
         <div class="lightbox-wrapper">
             <img class="lightbox-contenido" id="lightbox-img" alt="Imagen ampliada">
+            </div>
+
+        <div class="lightbox-nav nav-next" id="lb-next">
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
     </div>
 
@@ -199,7 +207,7 @@
     </div>
 
     <div id="modal-carrito" class="modal-carrito">
-        <div class="modal-contenido">
+        <div class="modal-contenido" id="modal-carrito-contenido">
             <span class="cerrar-carrito">&times;</span>
             <h2>Tu Carrito</h2>
             
@@ -214,6 +222,24 @@
             </div>
 
             <button id="btn-pagar" class="btn-enviar">Confirmar Pedido</button>
+        </div>
+        
+        <div class="modal-contenido" id="modal-exito" style="display: none;">
+            <span class="cerrar-carrito" id="cerrar-exito">&times;</span>
+            <div style="text-align: center; padding: 1rem;">
+                <i class="fa-brands fa-whatsapp" style="font-size: 4rem; color: #25D366; margin-bottom: 1rem;"></i>
+                <h2 style="color: #25D366; font-family: var(--fuente-texto);">¡Pedido Registrado!</h2>
+                <p style="margin-bottom: 1.5rem; font-size: 1rem;">
+                    Hemos recibido tu orden y estamos verificando la disponibilidad.
+                </p>
+                <p style="margin-bottom: 1.5rem; font-size: 0.9rem; color: #555;">
+                    Si no se abrió tu chat automáticamente, por favor presiona el botón de abajo o envía un mensaje al <strong>55 1473 2501</strong>.
+                </p>
+                
+                <a id="btn-manual-whatsapp" href="#" target="_blank" class="btn-enviar" style="background-color: #25D366; text-decoration: none; display: inline-block; color: white;">
+                    Finalizar pedido en WhatsApp
+                </a>
+            </div>
         </div>
     </div>
 

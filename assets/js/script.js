@@ -40,9 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================================
        CONFIGURACIÓN Y VARIABLES GLOBALES
        ========================================= */
-    // ⚠️ PEGA AQUÍ TU NUEVA URL DE APPS SCRIPT
     const API_URL = "https://script.google.com/macros/s/AKfycbxl-RldBgiqFgM4_TKxkE0pjDPh784vhZgv9UxnA6wD5hzspJYn-nNjLxcFJY0jeEtW/exec";
     
+    // Solo el número, sin símbolos, para la API de WhatsApp
     const WHATSAPP_NUMBER = "525514732501"; 
 
     let inventario = []; 
@@ -53,23 +53,22 @@ document.addEventListener('DOMContentLoaded', () => {
        ========================================= */
     async function cargarInventario() {
         try {
-            console.log("Cargando inventario actualizado...");
-            const response = await fetch(API_URL);
+            console.log("Sincronizando inventario...");
+            // Agregamos timestamp para evitar caché del navegador (Fix de Stock)
+            const response = await fetch(`${API_URL}?nocache=${Date.now()}`);
             if (!response.ok) throw new Error("Error servidor");
             
             const data = await response.json();
             
-            // Convertimos datos a números para evitar errores lógicos
             inventario = data.map(prod => ({
                 ...prod,
                 precio: Number(prod.precio),
                 stock: Number(prod.stock)
             }));
             
-            console.log("Inventario sincronizado:", inventario);
+            console.log("Inventario actualizado.");
         } catch (error) {
             console.error("Error cargando inventario:", error);
-            // Si falla, no borramos el inventario anterior por seguridad
             if(inventario.length === 0) inventario = []; 
         }
     }
@@ -94,11 +93,15 @@ document.addEventListener('DOMContentLoaded', () => {
        ========================================= */
     const filterBtns = document.querySelectorAll('.filtro-btn');
     const galeriaItems = document.querySelectorAll('.galeria-item');
+    // Guardamos la lista de items visibles actual para la navegación del lightbox
+    let itemsVisibles = []; 
 
     function applyFilter(category) {
+        itemsVisibles = [];
         galeriaItems.forEach(item => {
             if(category === 'all' || item.getAttribute('data-category') === category) {
                 item.style.display = 'block';
+                itemsVisibles.push(item);
             } else {
                 item.style.display = 'none';
             }
@@ -117,30 +120,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* =========================================
-       4. CARRUSEL VIDEOS
-       ========================================= */
-    const videos = document.querySelectorAll('.video-slide');
-    const dots = document.querySelectorAll('.video-dot');
-    function showVideo(index) {
-        videos.forEach(v => v.classList.remove('active'));
-        dots.forEach(d => d.classList.remove('active'));
-        if(videos[index]) videos[index].classList.add('active');
-        if(dots[index]) dots[index].classList.add('active');
-    }
-    dots.forEach((dot, index) => dot.addEventListener('click', () => showVideo(index)));
-
-    /* =========================================
-       5. LIGHTBOX Y SELECCIÓN DE PRODUCTO
+       4. LIGHTBOX Y NAVEGACIÓN
        ========================================= */
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const closeBtn = document.querySelector('.lightbox-cerrar');
     const lightboxWrapper = document.querySelector('.lightbox-wrapper');
+    const prevBtn = document.getElementById('lb-prev');
+    const nextBtn = document.getElementById('lb-next');
 
     const infoPanel = document.createElement('div');
     infoPanel.className = 'info-producto';
     infoPanel.innerHTML = `
-        <h2 id="lb-titulo" style="font-family:'Sacramento', cursive; color:#D94A8B;">Cargando...</h2>
+        <h2 id="lb-titulo" style="font-family:'Sacramento', cursive; color:#D94A8B;">...</h2>
         <p>Precio: <strong id="lb-precio" style="color:#54C5C3;">$0</strong></p>
         
         <div style="margin: 15px 0;">
@@ -153,71 +145,99 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     if(lightboxWrapper) lightboxWrapper.appendChild(infoPanel);
 
+    // Elementos internos del panel
     const lbTitulo = document.getElementById('lb-titulo');
     const lbPrecio = document.getElementById('lb-precio');
     const lbStock = document.getElementById('lb-stock');
     const lbCantidad = document.getElementById('lb-cantidad');
     const btnAgregar = document.getElementById('btn-agregar-carrito');
-    let productoActual = null;
+    
+    let currentItemIndex = 0; // Para saber qué item de 'itemsVisibles' estamos viendo
 
-    if(lightbox) {
-        galeriaItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const img = item.querySelector('img');
-                const idProducto = item.getAttribute('data-id'); 
-                
-                // Siempre buscamos en 'inventario' que puede haber sido actualizado tras una compra
-                productoActual = inventario.find(p => p.id === idProducto);
-                lbCantidad.value = 1;
+    function abrirLightbox(index) {
+        if(index < 0 || index >= itemsVisibles.length) return;
+        currentItemIndex = index;
+        
+        const item = itemsVisibles[currentItemIndex];
+        const img = item.querySelector('img');
+        const idProducto = item.getAttribute('data-id');
 
-                if (img) {
-                    lightboxImg.src = img.src;
-                    lightbox.style.display = 'flex';
-                    
-                    if (productoActual) {
-                        lbTitulo.innerText = productoActual.nombre;
-                        lbPrecio.innerText = `$${productoActual.precio}`;
-                        lbStock.innerText = productoActual.stock;
-                        
-                        if (productoActual.stock > 0) {
-                            btnAgregar.disabled = false;
-                            btnAgregar.innerText = "Agregar al Carrito";
-                            btnAgregar.style.backgroundColor = "#D94A8B";
-                            btnAgregar.onclick = () => agregarAlCarrito(productoActual, parseInt(lbCantidad.value));
-                        } else {
-                            btnAgregar.disabled = true;
-                            btnAgregar.innerText = "Agotado";
-                            btnAgregar.style.backgroundColor = "#ccc";
-                        }
-                    } else {
-                        lbTitulo.innerText = "Producto no encontrado"; 
-                        lbPrecio.innerText = "-";
-                        lbStock.innerText = "-";
-                        btnAgregar.disabled = true;
-                    }
-                }
-            });
-        });
+        // Buscar datos actualizados en inventario
+        const productoActual = inventario.find(p => p.id === idProducto);
+        lbCantidad.value = 1;
 
-        const cerrarLightbox = () => lightbox.style.display = 'none';
-        closeBtn.addEventListener('click', cerrarLightbox);
-        lightbox.addEventListener('click', (e) => { if(e.target === lightbox) cerrarLightbox(); });
+        if(img) lightboxImg.src = img.src;
+        lightbox.style.display = 'flex';
+
+        if(productoActual) {
+            lbTitulo.innerText = productoActual.nombre;
+            lbPrecio.innerText = `$${productoActual.precio}`;
+            lbStock.innerText = productoActual.stock;
+
+            if (productoActual.stock > 0) {
+                btnAgregar.disabled = false;
+                btnAgregar.innerText = "Agregar al Carrito";
+                btnAgregar.style.backgroundColor = "#D94A8B";
+                btnAgregar.onclick = () => agregarAlCarrito(productoActual, parseInt(lbCantidad.value));
+            } else {
+                btnAgregar.disabled = true;
+                btnAgregar.innerText = "Agotado";
+                btnAgregar.style.backgroundColor = "#ccc";
+            }
+        } else {
+            lbTitulo.innerText = "Producto no disponible";
+            btnAgregar.disabled = true;
+        }
     }
 
+    // Eventos Click en Galería
+    galeriaItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Buscar el índice de este item dentro de los visibles actualmente
+            const index = itemsVisibles.indexOf(item);
+            if(index !== -1) abrirLightbox(index);
+        });
+    });
+
+    // Navegación Flechas
+    if(prevBtn) prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        let newIndex = currentItemIndex - 1;
+        if(newIndex < 0) newIndex = itemsVisibles.length - 1; // Loop al final
+        abrirLightbox(newIndex);
+    });
+
+    if(nextBtn) nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        let newIndex = currentItemIndex + 1;
+        if(newIndex >= itemsVisibles.length) newIndex = 0; // Loop al inicio
+        abrirLightbox(newIndex);
+    });
+
+    const cerrarLightbox = () => lightbox.style.display = 'none';
+    closeBtn.addEventListener('click', cerrarLightbox);
+    lightbox.addEventListener('click', (e) => { if(e.target === lightbox) cerrarLightbox(); });
+
     /* =========================================
-       6. LÓGICA DEL CARRITO
+       5. LÓGICA DEL CARRITO
        ========================================= */
     const carritoBtn = document.getElementById('carrito-btn');
     const carritoModal = document.getElementById('modal-carrito');
     const cerrarCarrito = document.querySelector('.cerrar-carrito');
+    const cerrarExito = document.getElementById('cerrar-exito');
+    
+    // Contenedores internos del modal
+    const modalContenidoCarrito = document.getElementById('modal-carrito-contenido');
+    const modalContenidoExito = document.getElementById('modal-exito');
+
     const listaItems = document.getElementById('lista-items');
     const totalElement = document.getElementById('carrito-total');
     const contadorElement = document.getElementById('carrito-contador');
     const btnPagar = document.getElementById('btn-pagar');
 
-    // Referencias a los nuevos inputs
     const inputNombre = document.getElementById('cliente-nombre');
     const inputTelefono = document.getElementById('cliente-telefono');
+    const btnManualWhatsApp = document.getElementById('btn-manual-whatsapp');
 
     function agregarAlCarrito(producto, cantidadInput) {
         const existe = carrito.find(item => item.id === producto.id);
@@ -225,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let cantidadActualEnCarrito = existe ? existe.cantidad : 0;
         
         if ((cantidadActualEnCarrito + cantidadInput) > producto.stock) {
-            alert(`Solo hay ${producto.stock} unidades disponibles de este sabor.`);
+            alert(`Solo hay ${producto.stock} unidades disponibles. Ya tienes ${cantidadActualEnCarrito} en carrito.`);
             return;
         }
 
@@ -241,12 +261,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         actualizarCarritoUI();
         
+        // Feedback visual en botón
         const btn = document.getElementById('btn-agregar-carrito');
         const prevText = btn.innerText;
         btn.innerText = "¡Agregado!";
         setTimeout(() => { 
             if(btn.innerText === "¡Agregado!") btn.innerText = prevText; 
-            lightbox.style.display = 'none'; 
+            // No cerramos el lightbox automáticamente si el usuario quiere seguir navegando con las flechas
         }, 700);
     }
 
@@ -294,44 +315,85 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if(carritoBtn) carritoBtn.addEventListener('click', () => carritoModal.style.display = 'flex');
-    if(cerrarCarrito) cerrarCarrito.addEventListener('click', () => carritoModal.style.display = 'none');
-    window.addEventListener('click', (e) => { if(e.target === carritoModal) carritoModal.style.display = 'none'; });
+    function resetModal() {
+        modalContenidoCarrito.style.display = 'block';
+        modalContenidoExito.style.display = 'none';
+        carritoModal.style.display = 'none';
+    }
+
+    if(carritoBtn) carritoBtn.addEventListener('click', () => {
+        modalContenidoCarrito.style.display = 'block';
+        modalContenidoExito.style.display = 'none';
+        carritoModal.style.display = 'flex';
+    });
+    
+    if(cerrarCarrito) cerrarCarrito.addEventListener('click', resetModal);
+    if(cerrarExito) cerrarExito.addEventListener('click', resetModal);
+    
+    window.addEventListener('click', (e) => { 
+        if(e.target === carritoModal) resetModal(); 
+    });
 
     /* =========================================
-       7. PROCESAR PEDIDO (DB + WHATSAPP)
+       6. PROCESAR PEDIDO (CONCURRENCIA + WHATSAPP FIX)
        ========================================= */
     if(btnPagar) btnPagar.addEventListener('click', async () => {
         if(carrito.length === 0) return alert("Tu carrito está vacío.");
 
-        // 1. VALIDACIÓN DE CAMPOS
+        // 1. Validar Datos
         const clienteNombre = inputNombre.value.trim();
         const clienteTelefono = inputTelefono.value.trim();
 
         if (!clienteNombre || !clienteTelefono) {
-            alert("Por favor, ingresa tu Nombre y Teléfono para confirmar el pedido.");
+            alert("Por favor, ingresa tu Nombre y Teléfono.");
             return;
         }
 
         const textoOriginal = btnPagar.innerText;
-        btnPagar.innerText = "Procesando...";
+        btnPagar.innerText = "Verificando stock...";
         btnPagar.disabled = true;
 
-        const resumenPedido = carrito.map(item => `${item.cantidad} x ${item.nombre}`).join(", ");
-        const totalPagar = document.getElementById('carrito-total').innerText;
-        
-        // 2. OBJETO DE DATOS (Incluyendo Nombre y Teléfono)
-        const orden = {
-            fecha: new Date().toLocaleString(),
-            detalle: resumenPedido,
-            nombre: clienteNombre,     // Para la DB
-            telefono: clienteTelefono, // Para la DB
-            total: totalPagar,
-            items: carrito, 
-            accion: "nuevo_pedido" 
-        };
+        try {
+            // 2. VERIFICACIÓN DE STOCK (Anti-Concurrencia)
+            // Volvemos a pedir el inventario a Google Sheets antes de procesar
+            await cargarInventario(); 
 
-        const irAWhatsApp = () => {
+            let stockInsuficiente = false;
+            let mensajeError = "";
+
+            carrito.forEach(itemCarrito => {
+                const productoEnDB = inventario.find(p => p.id === itemCarrito.id);
+                if (!productoEnDB) {
+                    stockInsuficiente = true;
+                    mensajeError += `- ${itemCarrito.nombre} ya no existe.\n`;
+                } else if (productoEnDB.stock < itemCarrito.cantidad) {
+                    stockInsuficiente = true;
+                    mensajeError += `- ${itemCarrito.nombre}: Solo quedan ${productoEnDB.stock} (pediste ${itemCarrito.cantidad}).\n`;
+                }
+            });
+
+            if (stockInsuficiente) {
+                alert("⚠️ ¡Atención! El stock ha cambiado mientras comprabas:\n\n" + mensajeError + "\nPor favor ajusta tu pedido.");
+                btnPagar.innerText = textoOriginal;
+                btnPagar.disabled = false;
+                return; // Cancelar proceso
+            }
+
+            // 3. SI HAY STOCK, PREPARAMOS DATOS
+            const totalPagar = document.getElementById('carrito-total').innerText;
+            const resumenPedido = carrito.map(item => `${item.cantidad} x ${item.nombre}`).join(", ");
+            
+            const orden = {
+                fecha: new Date().toLocaleString(),
+                detalle: resumenPedido,
+                nombre: clienteNombre,
+                telefono: clienteTelefono,
+                total: totalPagar,
+                items: carrito, 
+                accion: "nuevo_pedido" 
+            };
+
+            // 4. GENERAR LINK DE WHATSAPP
             let mensajeWhatsApp = `Hola Miss Palomitas 🍿, soy *${clienteNombre}*.\nQuiero realizar el siguiente pedido:\n\n`;
             carrito.forEach(item => {
                 mensajeWhatsApp += `▪️ ${item.cantidad} x ${item.nombre} ($${item.precio * item.cantidad})\n`;
@@ -339,24 +401,11 @@ document.addEventListener('DOMContentLoaded', () => {
             mensajeWhatsApp += `\n*Total a pagar: $${totalPagar}*`;
             mensajeWhatsApp += `\n\nMis datos de contacto:\nTel: ${clienteTelefono}`;
             mensajeWhatsApp += `\n\nQuedo pendiente para coordinar el pago y la entrega. ¡Gracias!`;
-
+            
             const urlWhatsApp = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeWhatsApp)}`;
-            
-            // 3. LIMPIEZA INTERNA
-            carrito = [];
-            actualizarCarritoUI();
-            inputNombre.value = '';
-            inputTelefono.value = '';
-            carritoModal.style.display = 'none';
-            
-            // 4. ABRIR WHATSAPP EN NUEVA PESTAÑA Y RECARGAR STOCK
-            window.open(urlWhatsApp, '_blank');
-            
-            // 5. RECARGAR INVENTARIO AUTOMÁTICAMENTE (Esto actualiza los stocks sin F5)
-            cargarInventario(); 
-        };
 
-        try {
+            // 5. ENVIAR A GOOGLE SHEETS (Descontar Stock)
+            btnPagar.innerText = "Registrando...";
             await fetch(API_URL, {
                 method: 'POST',
                 mode: 'no-cors', 
@@ -364,17 +413,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(orden)
             });
 
-            // Feedback visual antes de abrir WA
-            setTimeout(() => {
-                alert("¡Pedido registrado! Abriendo WhatsApp...");
-                irAWhatsApp();
-            }, 500);
+            // 6. ÉXITO: MOSTRAR MODAL CON BOTÓN MANUAL (Fix para iPad/Popups)
+            carrito = [];
+            actualizarCarritoUI();
+            inputNombre.value = '';
+            inputTelefono.value = '';
+
+            // Cambiar vista del modal
+            modalContenidoCarrito.style.display = 'none';
+            modalContenidoExito.style.display = 'block';
+            
+            // Asignar el link al botón
+            btnManualWhatsApp.href = urlWhatsApp;
+
+            // Recargar inventario visualmente por si el usuario sigue en la página
+            cargarInventario();
 
         } catch (error) {
-            console.error("Error al enviar pedido:", error);
-            alert("Hubo un error de conexión, pero te llevaremos a WhatsApp.");
-            irAWhatsApp();
-        } finally {
+            console.error("Error al procesar:", error);
+            alert("Hubo un error de conexión. Intenta de nuevo.");
             btnPagar.innerText = textoOriginal;
             btnPagar.disabled = false;
         }
