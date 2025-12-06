@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================================
        CONFIGURACIÓN Y VARIABLES GLOBALES
        ========================================= */
-    const API_URL = "https://script.google.com/macros/s/AKfycbxl-RldBgiqFgM4_TKxkE0pjDPh784vhZgv9UxnA6wD5hzspJYn-nNjLxcFJY0jeEtW/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxKLnL1zUP85nPxvxgPryaQTR65IUcKUrj8DQuxq5ync0SBX7HLwvm6flRNyZDUXtJX/exec";
     const WHATSAPP_NUMBER = "525514732501"; 
 
     let inventario = []; 
