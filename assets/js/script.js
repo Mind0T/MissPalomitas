@@ -40,12 +40,33 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================================
        CONFIGURACIÓN Y VARIABLES GLOBALES
        ========================================= */
-    const API_URL = "https://script.google.com/macros/s/AKfycbxKLnL1zUP85nPxvxgPryaQTR65IUcKUrj8DQuxq5ync0SBX7HLwvm6flRNyZDUXtJX/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxhMsqpYWrri_g8cHLfE7rJHcijcU3Wzxhjh5imYcQ8Jh-f7JkQe2b1oBCwkCs-ZdU-/exec"; // Reemplaza con tu URL
     const WHATSAPP_NUMBER = "525514732501"; 
 
     let inventario = []; 
     let carrito = [];    
 
+    /* =========================================
+       FUNCIÓN DE UTILIDAD PARA FECHAS
+       ========================================= */
+    // Soluciona el problema de que JS interprete la fecha de calendario 
+    // como GMT y la retrase un día al convertirla a la zona local.
+    function procesarFecha(fechaInput) {
+        if (!fechaInput) return "Sin fecha";
+        
+        // Creamos la fecha sin usar 'new Date()' directamente sobre el string 'YYYY-MM-DD'
+        // para evitar el desfase de zona horaria.
+        const partes = fechaInput.split('-');
+        const anio = parseInt(partes[0]);
+        const mes = parseInt(partes[1]) - 1; // Meses son 0-indexados
+        const dia = parseInt(partes[2]);
+        
+        const fechaObj = new Date(anio, mes, dia);
+
+        // Formatea la fecha a dd/mm/yyyy para display (WhatsApp y DB)
+        return fechaObj.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    }
+    
     /* =========================================
        1. CONEXIÓN CON GOOGLE SHEETS
        ========================================= */
@@ -90,11 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const videoContainer = document.getElementById('video-scroll-container');
     const videoDots = document.querySelectorAll('.video-dot');
 
-    // Función para actualizar el punto activo según el scroll
     function updateActiveDot() {
         if(!videoContainer) return;
         
-        // Calculamos qué video está visible (scrollLeft / ancho del contenedor)
         const scrollPosition = videoContainer.scrollLeft;
         const width = videoContainer.clientWidth;
         const index = Math.round(scrollPosition / width);
@@ -106,10 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if(videoContainer) {
-        // Escuchar el evento scroll
         videoContainer.addEventListener('scroll', updateActiveDot);
 
-        // Click en los puntos para ir al video
         videoDots.forEach((dot, index) => {
             dot.addEventListener('click', () => {
                 const width = videoContainer.clientWidth;
@@ -123,11 +140,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     /* =========================================
-       4. FILTRO DE SABORES
+       4. FILTRO DE SABORES Y GALERÍA INICIAL
        ========================================= */
     const filterBtns = document.querySelectorAll('.filtro-btn');
     const galeriaItems = document.querySelectorAll('.galeria-item');
+    const galeriaGrid = document.getElementById('galeria-grid');
+    const galeriaVacia = document.getElementById('galeria-vacia');
     let itemsVisibles = []; 
+    let galeriaActiva = false;
+
+    galeriaGrid.style.display = 'none';
+    galeriaVacia.style.display = 'flex';
+
 
     function applyFilter(category) {
         itemsVisibles = [];
@@ -139,10 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.style.display = 'none';
             }
         });
-    }
 
-    const initialActiveBtn = document.querySelector('.filtro-btn.active');
-    if (initialActiveBtn) applyFilter(initialActiveBtn.getAttribute('data-filter'));
+        if (!galeriaActiva) {
+            galeriaActiva = true;
+            galeriaVacia.style.display = 'none';
+            galeriaGrid.style.display = 'grid';
+        }
+    }
 
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -162,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevBtn = document.getElementById('lb-prev');
     const nextBtn = document.getElementById('lb-next');
 
+    // Se agrega la leyenda "Imágenes solo ilustrativas" al panel de info
     const infoPanel = document.createElement('div');
     infoPanel.className = 'info-producto';
     infoPanel.innerHTML = `
@@ -174,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <p style="font-size:0.9rem; color:#666;">Disponibles: <span id="lb-stock">...</span></p>
+        <p style="font-size:0.7rem; color:#999; margin-top: 10px;">Imágenes solo ilustrativas</p>
         <button id="btn-agregar-carrito" class="btn-enviar" style="margin-top:15px;">Agregar al Carrito</button>
     `;
     if(lightboxWrapper) lightboxWrapper.appendChild(infoPanel);
@@ -223,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     galeriaItems.forEach(item => {
         item.addEventListener('click', () => {
+            if (!galeriaActiva) return;
             const index = itemsVisibles.indexOf(item);
             if(index !== -1) abrirLightbox(index);
         });
@@ -264,6 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const inputNombre = document.getElementById('cliente-nombre');
     const inputTelefono = document.getElementById('cliente-telefono');
+    const inputFechaEvento = document.getElementById('cliente-fecha-evento'); 
     const btnManualWhatsApp = document.getElementById('btn-manual-whatsapp');
 
     function agregarAlCarrito(producto, cantidadInput) {
@@ -341,22 +372,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetModal() {
-        // Restaurar estado visual del modal
         modalContenidoCarrito.style.display = 'block';
         modalContenidoExito.style.display = 'none';
         carritoModal.style.display = 'none';
         
-        // CORRECCIÓN CLAVE: Restaurar el botón para el siguiente pedido
         btnPagar.innerText = "Confirmar Pedido";
         btnPagar.disabled = false;
     }
 
     if(carritoBtn) carritoBtn.addEventListener('click', () => {
-        // Aseguramos que se muestre el carrito y no el mensaje de éxito anterior
         modalContenidoCarrito.style.display = 'block';
         modalContenidoExito.style.display = 'none';
         
-        // Aseguramos que el botón esté listo
         btnPagar.innerText = "Confirmar Pedido";
         btnPagar.disabled = false;
         
@@ -378,9 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const clienteNombre = inputNombre.value.trim();
         const clienteTelefono = inputTelefono.value.trim();
+        const clienteFechaEntrega = inputFechaEvento.value; 
 
-        if (!clienteNombre || !clienteTelefono) {
-            alert("Por favor, ingresa tu Nombre y Teléfono.");
+        if (!clienteNombre || !clienteTelefono || !clienteFechaEntrega) {
+            alert("Por favor, ingresa tu Nombre, Teléfono y la Fecha de Entrega deseada.");
             return;
         }
 
@@ -407,11 +435,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (stockInsuficiente) {
-                alert("⚠️ ¡Atención! El stock ha cambiado:\n\n" + mensajeError + "\nPor favor ajusta tu pedido.");
+                alert("Atención! El stock ha cambiado:\n\n" + mensajeError + "\nPor favor ajusta tu pedido.");
                 btnPagar.innerText = textoOriginal;
                 btnPagar.disabled = false;
                 return; 
             }
+
+            // PROCESAR FECHA para evitar el desfase de un día
+            const fechaDisplay = procesarFecha(clienteFechaEntrega); 
 
             // Datos de Orden
             const totalPagar = document.getElementById('carrito-total').innerText;
@@ -422,19 +453,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 detalle: resumenPedido,
                 nombre: clienteNombre,
                 telefono: clienteTelefono,
+                fechaEvento: fechaDisplay, // Usamos la clave 'fechaEvento' para la DB de Google Script
                 total: totalPagar,
                 items: carrito, 
                 accion: "nuevo_pedido" 
             };
 
-            // Link WhatsApp
-            let mensajeWhatsApp = `Hola Miss Palomitas 🍿, soy *${clienteNombre}*.\nQuiero realizar el siguiente pedido:\n\n`;
+            // Link WhatsApp (Usando la fecha corregida)
+            let mensajeWhatsApp = `Hola Miss Palomitas, soy *${clienteNombre}*.\nQuiero realizar el siguiente pedido:\n\n`;
             carrito.forEach(item => {
-                mensajeWhatsApp += `▪️ ${item.cantidad} x ${item.nombre} ($${item.precio * item.cantidad})\n`;
+                mensajeWhatsApp += ` - ${item.cantidad} x ${item.nombre} ($${item.precio * item.cantidad})\n`;
             });
+            mensajeWhatsApp += `\n*Fecha de Entrega: ${fechaDisplay}*`; 
             mensajeWhatsApp += `\n*Total a pagar: $${totalPagar}*`;
             mensajeWhatsApp += `\n\nMis datos de contacto:\nTel: ${clienteTelefono}`;
-            mensajeWhatsApp += `\n\nQuedo pendiente para coordinar el pago y la entrega. ¡Gracias!`;
+            mensajeWhatsApp += `\n\nQuedo pendiente para coordinar el pago y la entrega. Gracias!`;
             
             const urlWhatsApp = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeWhatsApp)}`;
 
@@ -452,6 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
             actualizarCarritoUI();
             inputNombre.value = '';
             inputTelefono.value = '';
+            inputFechaEvento.value = '';
 
             modalContenidoCarrito.style.display = 'none';
             modalContenidoExito.style.display = 'block';
@@ -468,4 +502,38 @@ document.addEventListener('DOMContentLoaded', () => {
             btnPagar.disabled = false;
         }
     });
+    
+    /* =========================================
+       8. LÓGICA DE BOTONES FLOTANTES
+       ========================================= */
+    const filtrosWrapper = document.getElementById('filtros-wrapper');
+    const saboresSection = document.getElementById('sabores');
+    const header = document.querySelector('header');
+    
+    let isFloating = false;
+
+    window.addEventListener('scroll', () => {
+        if (!saboresSection || !filtrosWrapper || !header) return;
+
+        const headerHeight = header.offsetHeight;
+        const saboresTop = saboresSection.offsetTop;
+        const currentScroll = window.scrollY;
+
+        const offsetActivation = saboresTop - headerHeight;
+
+        if (currentScroll >= offsetActivation) {
+            if (!isFloating) {
+                filtrosWrapper.classList.add('floating-filters');
+                filtrosWrapper.style.top = `${headerHeight}px`;
+                isFloating = true;
+            }
+        } else {
+            if (isFloating) {
+                filtrosWrapper.classList.remove('floating-filters');
+                filtrosWrapper.style.top = 'unset';
+                isFloating = false;
+            }
+        }
+    });
+
 });

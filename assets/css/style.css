@@ -7,6 +7,8 @@
     --fuente-texto: 'Nunito', sans-serif;
 }
 @import url('https://fonts.googleapis.com/css2?family=Sacramento&family=Nunito:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap'); /* Nueva fuente Montserrat */
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { font-family: var(--fuente-texto); background-color: var(--color-primario); color: var(--color-texto); line-height: 1.6; }
@@ -45,10 +47,54 @@ header nav a:hover::after { width: 100%; }
 /* SABORES */
 #sabores { background-color: #ffffff; }
 #sabores h2, #contacto h2, #nosotros h2, #videos h2 { text-align: center; margin-bottom: 2rem; font-size: 4rem; }
-.filtros { text-align: center; margin-bottom: 2rem; }
+
+/* Estilos de Botones Flotantes */
+.filtros-wrapper { 
+    position: relative; 
+    z-index: 50; 
+    background-color: #ffffff; 
+    padding: 1rem 0; 
+    box-shadow: none; 
+    margin-bottom: 2rem; /* Espacio antes de la galería/leyenda */
+}
+
+.filtros-wrapper.floating-filters {
+    position: fixed;
+    top: 0; /* Ajustado por JS para la altura del header */
+    left: 0;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: top 0.3s ease;
+}
+
+.filtros { text-align: center; max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
 .filtro-btn { background: none; border: 2px solid var(--color-acento); border-radius: 25px; color: var(--color-acento); padding: 0.7rem 2rem; margin: 0 0.5rem; cursor: pointer; transition: all 0.3s ease; font-family: var(--fuente-texto); font-weight: 700; font-size: 1rem; }
 .filtro-btn.active, .filtro-btn:hover { background: var(--color-acento); color: white; transform: scale(1.05); }
-.galeria-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; min-height: 500px; }
+
+/* Galería Inicial Vacía */
+.galeria-vacia {
+    display: flex; /* Se controla con JS */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 250px; /* Tamaño reducido para no generar un vacío grande */
+    text-align: center;
+    padding: 2rem 0;
+}
+.galeria-vacia .logo-pequeno {
+    height: 120px;
+    margin-bottom: 15px;
+}
+.galeria-vacia p {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--color-secundario);
+    letter-spacing: 4px;
+}
+
+.galeria-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; min-height: 250px; /* Se ajusta para que el vacío no sea excesivo */ }
 
 .galeria-item { display: none; overflow: hidden; position: relative; cursor: pointer; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); aspect-ratio: 1 / 1; }
 .galeria-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
@@ -62,6 +108,8 @@ header nav a:hover::after { width: 100%; }
 .galeria-item:hover .sabor-nombre { transform: translateY(0); }
 @media (max-width: 768px) {
     .sabor-nombre { transform: translateY(0); padding: 5px; font-size: 1rem; }
+    .galeria-vacia .logo-pequeno { height: 80px; }
+    .galeria-vacia p { font-size: 1rem; letter-spacing: 2px; }
 }
 
 /* VIDEOS (SCROLL HORIZONTAL UNO POR UNO) */
@@ -70,19 +118,19 @@ header nav a:hover::after { width: 100%; }
 .video-scroll-container {
     display: flex;
     overflow-x: auto;
-    scroll-snap-type: x mandatory; /* Fuerza a detenerse en cada video */
+    scroll-snap-type: x mandatory; 
     -webkit-overflow-scrolling: touch; 
     width: 100%;
-    max-width: 800px; /* Ancho máximo para desktop */
+    max-width: 800px; 
     margin: 0 auto;
-    scrollbar-width: none; /* Oculta barra en Firefox */
+    scrollbar-width: none; 
 }
-.video-scroll-container::-webkit-scrollbar { display: none; /* Oculta barra en Chrome/Safari */ }
+.video-scroll-container::-webkit-scrollbar { display: none; }
 
 .video-card {
-    flex: 0 0 100%; /* Ocupa el 100% del contenedor */
+    flex: 0 0 100%; 
     scroll-snap-align: center;
-    aspect-ratio: 16 / 9; /* Formato Youtube Normal */
+    aspect-ratio: 16 / 9; 
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
