@@ -7,7 +7,7 @@
     --fuente-texto: 'Nunito', sans-serif;
 }
 @import url('https://fonts.googleapis.com/css2?family=Sacramento&family=Nunito:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap'); /* Nueva fuente Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap'); 
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -48,6 +48,27 @@ header nav a:hover::after { width: 100%; }
 #sabores { background-color: #ffffff; }
 #sabores h2, #contacto h2, #nosotros h2, #videos h2 { text-align: center; margin-bottom: 2rem; font-size: 4rem; }
 
+/* Intro de Sabores (Logo y Texto fijos) */
+.sabores-intro {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 0 2rem 0; /* Espacio antes de los botones */
+}
+.sabores-intro .logo-pequeno {
+    height: 120px;
+    margin-bottom: 15px;
+}
+.sabores-intro p {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--color-secundario);
+    letter-spacing: 4px;
+}
+
 /* Estilos de Botones Flotantes */
 .filtros-wrapper { 
     position: relative; 
@@ -56,16 +77,14 @@ header nav a:hover::after { width: 100%; }
     padding: 1rem 0; 
     box-shadow: none; 
     margin-bottom: 2rem;
-    /* Añadida transición para un cambio de estilo más suave */
     transition: background-color 0.3s ease, box-shadow 0.3s ease; 
 }
 
 .filtros-wrapper.floating-filters {
     position: fixed;
-    top: 0; /* Ajustado por JS para la altura del header */
+    top: 0; 
     left: 0;
     width: 100%;
-    /* Fondo con transparencia para ver elementos debajo */
     background-color: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(5px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -79,32 +98,43 @@ header nav a:hover::after { width: 100%; }
     padding: 0 2rem; 
 }
 
-.filtro-btn { background: none; border: 2px solid var(--color-acento); border-radius: 25px; color: var(--color-acento); padding: 0.7rem 2rem; margin: 0 0.5rem; cursor: pointer; transition: all 0.3s ease; font-family: var(--fuente-texto); font-weight: 700; font-size: 1rem; }
-.filtro-btn.active, .filtro-btn:hover { background: var(--color-acento); color: white; transform: scale(1.05); }
-
-/* Galería Inicial Vacía */
-.galeria-vacia {
-    display: flex; /* Se controla con JS */
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 250px; /* Tamaño reducido para no generar un vacío grande */
-    text-align: center;
-    padding: 2rem 0;
-}
-.galeria-vacia .logo-pequeno {
-    height: 120px;
-    margin-bottom: 15px;
-}
-.galeria-vacia p {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 300;
-    color: var(--color-secundario);
-    letter-spacing: 4px;
+/* CAMBIO: Animación de atención secuencial */
+@keyframes atencion-boton {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); background-color: var(--color-primario); color: var(--color-secundario); }
 }
 
-.galeria-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; min-height: 250px; /* Se ajusta para que el vacío no sea excesivo */ }
+.filtro-btn { 
+    background: none; 
+    border: 2px solid var(--color-acento); 
+    border-radius: 25px; 
+    color: var(--color-acento); 
+    padding: 0.7rem 2rem; 
+    margin: 0 0.5rem; 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+    font-family: var(--fuente-texto); 
+    font-weight: 700; 
+    font-size: 1rem; 
+    
+    /* Aplicar animación */
+    animation: atencion-boton 3s infinite;
+}
+
+/* Retrasos para que sea secuencial (por turno) */
+.filtro-btn:nth-child(1) { animation-delay: 0s; }
+.filtro-btn:nth-child(2) { animation-delay: 1s; }
+.filtro-btn:nth-child(3) { animation-delay: 2s; }
+
+.filtro-btn.active, .filtro-btn:hover { 
+    background: var(--color-acento); 
+    color: white; 
+    transform: scale(1.05); 
+    animation: none; /* Detiene la animación si se interactúa */
+}
+
+
+.galeria-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; min-height: 250px; }
 
 .galeria-item { display: none; overflow: hidden; position: relative; cursor: pointer; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); aspect-ratio: 1 / 1; }
 .galeria-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
@@ -116,25 +146,23 @@ header nav a:hover::after { width: 100%; }
     font-weight: 700; font-size: 1.2rem; transform: translateY(100%); transition: transform 0.3s ease;
 }
 .galeria-item:hover .sabor-nombre { transform: translateY(0); }
+
 @media (max-width: 768px) {
-    /* Modificación: Botones de filtro en móvil en una fila deslizable */
+    /* CAMBIO: Botones en columna (uno debajo del otro) en móvil */
     .filtros {
         display: flex;
-        overflow-x: auto; /* Permite el scroll horizontal */
-        justify-content: flex-start; /* Alinea al inicio */
-        padding: 0 1rem; /* Ajuste de padding en móvil */
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        flex-direction: column; /* Apilar verticalmente */
+        gap: 15px; /* Espacio entre botones */
+        align-items: stretch;
     }
-    .filtros::-webkit-scrollbar { display: none; } /* Oculta la barra de scroll */
     .filtro-btn {
-        flex-shrink: 0; /* Evita que los botones se encojan */
-        margin: 0 0.5rem;
-        font-size: 0.9rem;
+        margin: 0;
+        width: 100%; /* Botón ancho completo en móvil */
     }
+
     .sabor-nombre { transform: translateY(0); padding: 5px; font-size: 1rem; }
-    .galeria-vacia .logo-pequeno { height: 80px; }
-    .galeria-vacia p { font-size: 1rem; letter-spacing: 2px; }
+    .sabores-intro .logo-pequeno { height: 80px; }
+    .sabores-intro p { font-size: 1rem; letter-spacing: 2px; }
 }
 
 /* VIDEOS (SCROLL HORIZONTAL UNO POR UNO) */
@@ -179,10 +207,7 @@ header nav a:hover::after { width: 100%; }
 
 #contacto { background-color: #ffffff; text-align: center; }
 .form-container { max-width: 600px; margin: 0 auto; padding: 20px; background: var(--color-primario); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-.contact-form { display: flex; flex-direction: column; gap: 15px; text-align: left; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--color-secundario); }
-.form-group input, .form-group textarea { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-family: var(--fuente-texto); font-size: 1rem; }
-.form-group input:focus, .form-group textarea:focus { border-color: var(--color-acento); outline: none; }
+
 .links-contacto { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-top: 0; margin-bottom: 2rem; }
 .link-item { padding: 1rem 2rem; border: 2px solid var(--color-secundario); border-radius: 30px; text-decoration: none; color: var(--color-secundario); font-weight: 700; transition: all 0.3s ease; }
 .link-item:hover { background-color: var(--color-secundario); color: white; transform: scale(1.05); }
@@ -201,6 +226,7 @@ footer p { font-size: 0.9rem; margin: 0; }
 .lightbox-nav:hover { background: rgba(217, 74, 139, 0.8); transform: translateY(-50%) scale(1.1); }
 .nav-prev { left: 10px; }
 .nav-next { right: 10px; }
+.lightbox-cerrar { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer; z-index: 10002; }
 
 @media (max-width: 600px) {
     .lightbox-nav { font-size: 1.5rem; width: 40px; height: 40px; padding: 10px; top: unset; bottom: 20px; transform: none; }
@@ -215,8 +241,11 @@ footer p { font-size: 0.9rem; margin: 0; }
 #carrito-contador { position: absolute; top: -5px; right: -5px; background: var(--color-acento); font-size: 14px; font-weight: bold; width: 25px; height: 25px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid white; }
 .modal-carrito { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; }
 .modal-contenido { background: white; padding: 2rem; border-radius: 15px; width: 90%; max-width: 450px; position: relative; text-align: center; max-height: 85vh; overflow-y: auto; }
-.cerrar-carrito { position: absolute; top: 10px; right: 20px; font-size: 30px; cursor: pointer; color: #aaa; }
-.cerrar-carrito:hover { color: var(--color-secundario); }
+
+/* CAMBIO: Cerrar carrito más visible y grande */
+.cerrar-carrito { position: absolute; top: 5px; right: 15px; font-size: 40px; cursor: pointer; color: #555; z-index: 3001; font-weight: bold; line-height: 1; }
+.cerrar-carrito:hover { color: red; }
+
 .total-texto { font-size: 1.2rem; font-weight: bold; margin: 1rem 0; color: var(--color-secundario); }
 .btn-enviar { display: block; width: 100%; padding: 1rem; background-color: var(--color-secundario); color: white; border: none; border-radius: 10px; font-family: var(--fuente-texto); font-weight: 700; font-size: 1.2rem; cursor: pointer; transition: background-color 0.3s ease; }
 .btn-enviar:disabled { background-color: #ccc; cursor: not-allowed; }

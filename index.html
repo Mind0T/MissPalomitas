@@ -64,17 +64,17 @@
             <div class="container">
                 <h2>Nuestros Sabores</h2>
                 
+                <div class="sabores-intro">
+                    <img src="assets/img/ig-13.png" alt="Logotipo Miss Palomitas" class="logo-pequeno">
+                    <p>DESCUBRE NUESTROS SABORES</p>
+                </div>
+
                 <div id="filtros-wrapper" class="filtros-wrapper">
                     <div class="filtros">
                         <button class="filtro-btn active" data-filter="picositas">Picositas</button>
                         <button class="filtro-btn" data-filter="saladas">Saladas</button>
                         <button class="filtro-btn" data-filter="dulces">Dulces</button>
                     </div>
-                </div>
-
-                <div id="galeria-vacia" class="galeria-vacia">
-                    <img src="assets/img/ig-13.png" alt="Logotipo Miss Palomitas" class="logo-pequeno">
-                    <p>DESCUBRE NUESTROS SABORES</p>
                 </div>
                 
                 <div class="galeria-grid" id="galeria-grid">
@@ -225,22 +225,11 @@
                     <a href="https://wa.me/525514732501" target="_blank" class="link-item"><i class="fab fa-whatsapp"></i> WhatsApp</a>
                 </div>
 
-                <div class="form-container">
-                    <form action="https://formspree.io/f/manpddoq" method="POST" class="contact-form">
-                        <div class="form-group">
-                            <label for="nombre">Nombre:</label>
-                            <input type="text" id="nombre" name="name" required placeholder="Tu nombre">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Correo Electrónico:</label>
-                            <input type="email" id="email" name="email" required placeholder="tu@email.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="mensaje">Mensaje o Pedido:</label>
-                            <textarea id="mensaje" name="message" required placeholder="Cuéntanos qué necesitas..." rows="5"></textarea>
-                        </div>
-                        <button type="submit" class="btn-enviar">Enviar Mensaje</button>
-                    </form>
+                <div class="correo-texto" style="text-align: center; margin-top: 2rem;">
+                    <p style="font-size: 1.1rem; color: #666;">
+                        <i class="fa-solid fa-envelope" style="color: #D94A8B; margin-right: 5px;"></i>
+                        misspalomitas95@gmail.com
+                    </p>
                 </div>
                 
             </div>
@@ -270,7 +259,7 @@
 
     <div id="modal-carrito" class="modal-carrito">
         <div class="modal-contenido" id="modal-carrito-contenido">
-            <span class="cerrar-carrito">&times;</span>
+            <span class="cerrar-carrito" title="Cerrar">&times;</span>
             <h2>Tu Carrito</h2>
             
             <p style="text-align: center; font-size: 0.8rem; color: #999; margin-bottom: 1rem;">*Imágenes solo ilustrativas</p>
@@ -285,6 +274,10 @@
                 <input type="tel" id="cliente-telefono" placeholder="Teléfono de contacto" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit;">
                 <label for="cliente-fecha-evento" style="font-weight: bold; color: #D94A8B; display: block; margin-bottom: 5px;">Fecha de Entrega:</label>
                 <input type="date" id="cliente-fecha-evento" placeholder="Fecha que deseas disfrutar tus palomitas" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit;">
+            </div>
+
+            <div style="background-color: #fff5fa; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #f3d0e2; font-size: 0.85rem; color: #555; text-align: justify;">
+                <p><strong>Nota:</strong> El mensaje automático puede tardar un poco. Si demora o no te direcciona a WhatsApp, puedes enviarme un mensaje manual al: <strong>55 1473 2501</strong>.</p>
             </div>
 
             <button id="btn-pagar" class="btn-enviar">Confirmar Pedido</button>

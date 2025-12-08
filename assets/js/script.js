@@ -32,15 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    window.addEventListener('pageshow', () => {
-        const form = document.querySelector('.contact-form');
-        if (form) form.reset();
-    });
-
     /* =========================================
        CONFIGURACIÓN Y VARIABLES GLOBALES
        ========================================= */
-    const API_URL = "https://script.google.com/macros/s/AKfycbxhMsqpYWrri_g8cHLfE7rJHcijcU3Wzxhjh5imYcQ8Jh-f7JkQe2b1oBCwkCs-ZdU-/exec"; // Reemplaza con tu URL
+    const API_URL = "https://script.google.com/macros/s/AKfycbxhMsqpYWrri_g8cHLfE7rJHcijcU3Wzxhjh5imYcQ8Jh-f7JkQe2b1oBCwkCs-ZdU-/exec"; 
     const WHATSAPP_NUMBER = "525514732501"; 
 
     let inventario = []; 
@@ -49,21 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================================
        FUNCIÓN DE UTILIDAD PARA FECHAS
        ========================================= */
-    // Soluciona el problema de que JS interprete la fecha de calendario 
-    // como GMT y la retrase un día al convertirla a la zona local.
     function procesarFecha(fechaInput) {
         if (!fechaInput) return "Sin fecha";
-        
-        // Creamos la fecha sin usar 'new Date()' directamente sobre el string 'YYYY-MM-DD'
-        // para evitar el desfase de zona horaria.
         const partes = fechaInput.split('-');
         const anio = parseInt(partes[0]);
-        const mes = parseInt(partes[1]) - 1; // Meses son 0-indexados
+        const mes = parseInt(partes[1]) - 1; 
         const dia = parseInt(partes[2]);
-        
         const fechaObj = new Date(anio, mes, dia);
-
-        // Formatea la fecha a dd/mm/yyyy para display (WhatsApp y DB)
         return fechaObj.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
     }
     
@@ -113,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateActiveDot() {
         if(!videoContainer) return;
-        
         const scrollPosition = videoContainer.scrollLeft;
         const width = videoContainer.clientWidth;
         const index = Math.round(scrollPosition / width);
@@ -145,13 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterBtns = document.querySelectorAll('.filtro-btn');
     const galeriaItems = document.querySelectorAll('.galeria-item');
     const galeriaGrid = document.getElementById('galeria-grid');
-    const galeriaVacia = document.getElementById('galeria-vacia');
+    
     let itemsVisibles = []; 
-    let galeriaActiva = false;
-
+    
+    // Iniciar oculto hasta que se pulse un botón
     galeriaGrid.style.display = 'none';
-    galeriaVacia.style.display = 'flex';
-
 
     function applyFilter(category) {
         itemsVisibles = [];
@@ -164,11 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        if (!galeriaActiva) {
-            galeriaActiva = true;
-            galeriaVacia.style.display = 'none';
-            galeriaGrid.style.display = 'grid';
-        }
+        // Mostrar grilla al filtrar
+        galeriaGrid.style.display = 'grid';
     }
 
     filterBtns.forEach(btn => {
@@ -180,6 +161,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* =========================================
+       GESTIÓN HISTORIAL PARA MODALES (BACK BUTTON)
+       ========================================= */
+    // Esta función maneja que al dar "Atrás" en el celular, se cierre el modal en vez de salir.
+    window.addEventListener('popstate', (event) => {
+        // Si el usuario da atrás, cerramos todo lo que esté abierto visualmente
+        lightbox.style.display = 'none';
+        carritoModal.style.display = 'none';
+    });
+
+    function abrirModalSeguro(modalElement) {
+        // Empujamos un estado al historial para "atrapar" el botón atrás
+        history.pushState({ modalOpen: true }, "", window.location.href);
+        modalElement.style.display = 'flex';
+    }
+
+    function cerrarModalSeguro(modalElement) {
+        modalElement.style.display = 'none';
+        // Si hay un estado en el historial, vamos atrás para limpiarlo
+        // (Esto evita que el usuario tenga que dar atrás dos veces luego)
+        if (history.state && history.state.modalOpen) {
+            history.back();
+        }
+    }
+
+    /* =========================================
        5. LIGHTBOX Y NAVEGACIÓN
        ========================================= */
     const lightbox = document.getElementById('lightbox');
@@ -189,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevBtn = document.getElementById('lb-prev');
     const nextBtn = document.getElementById('lb-next');
 
-    // Se agrega la leyenda "Imágenes solo ilustrativas" al panel de info
     const infoPanel = document.createElement('div');
     infoPanel.className = 'info-producto';
     infoPanel.innerHTML = `
@@ -227,7 +232,9 @@ document.addEventListener('DOMContentLoaded', () => {
         lbCantidad.value = 1;
 
         if(img) lightboxImg.src = img.src;
-        lightbox.style.display = 'flex';
+        
+        // Usamos la función segura para abrir y gestionar historial
+        abrirModalSeguro(lightbox);
 
         if(productoActual) {
             lbTitulo.innerText = productoActual.nombre;
@@ -252,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     galeriaItems.forEach(item => {
         item.addEventListener('click', () => {
-            if (!galeriaActiva) return;
             const index = itemsVisibles.indexOf(item);
             if(index !== -1) abrirLightbox(index);
         });
@@ -262,19 +268,51 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation();
         let newIndex = currentItemIndex - 1;
         if(newIndex < 0) newIndex = itemsVisibles.length - 1; 
-        abrirLightbox(newIndex);
+        abrirLightboxNoHistory(newIndex); // Navegación interna sin afectar historial
     });
 
     if(nextBtn) nextBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         let newIndex = currentItemIndex + 1;
         if(newIndex >= itemsVisibles.length) newIndex = 0; 
-        abrirLightbox(newIndex);
+        abrirLightboxNoHistory(newIndex);
     });
 
-    const cerrarLightbox = () => lightbox.style.display = 'none';
+    // Función auxiliar para navegar dentro del lightbox sin pushear historial extra
+    function abrirLightboxNoHistory(index) {
+        currentItemIndex = index;
+        const item = itemsVisibles[currentItemIndex];
+        const img = item.querySelector('img');
+        const idProducto = item.getAttribute('data-id');
+        const productoActual = inventario.find(p => p.id === idProducto);
+        
+        if(img) lightboxImg.src = img.src;
+        
+        if(productoActual) {
+            lbTitulo.innerText = productoActual.nombre;
+            lbPrecio.innerText = `$${productoActual.precio}`;
+            lbStock.innerText = productoActual.stock;
+            // ... lógica de botones igual ...
+             if (productoActual.stock > 0) {
+                btnAgregar.disabled = false;
+                btnAgregar.innerText = "Agregar al Carrito";
+                btnAgregar.style.backgroundColor = "#D94A8B";
+                btnAgregar.onclick = () => agregarAlCarrito(productoActual, parseInt(lbCantidad.value));
+            } else {
+                btnAgregar.disabled = true;
+                btnAgregar.innerText = "Agotado";
+                btnAgregar.style.backgroundColor = "#ccc";
+            }
+        }
+    }
+
+    const cerrarLightbox = () => cerrarModalSeguro(lightbox);
     closeBtn.addEventListener('click', cerrarLightbox);
-    lightbox.addEventListener('click', (e) => { if(e.target === lightbox) cerrarLightbox(); });
+    
+    // Cerrar al clickear fuera
+    lightbox.addEventListener('click', (e) => { 
+        if(e.target === lightbox) cerrarLightbox(); 
+    });
 
     /* =========================================
        6. LÓGICA DEL CARRITO
@@ -372,9 +410,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetModal() {
+        // Al cerrar (reset), usamos la función segura si es que fue activada por botón X
+        // Pero aquí se llama desde listener directo, así que mejor usar cerrarModalSeguro
+        // Sin embargo, esta función se usa para cambiar vistas también.
+        
         modalContenidoCarrito.style.display = 'block';
         modalContenidoExito.style.display = 'none';
-        carritoModal.style.display = 'none';
+        
+        // Si llamamos a resetModal desde el boton cerrar, aplicamos logica de historial
+        cerrarModalSeguro(carritoModal);
         
         btnPagar.innerText = "Confirmar Pedido";
         btnPagar.disabled = false;
@@ -387,12 +431,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btnPagar.innerText = "Confirmar Pedido";
         btnPagar.disabled = false;
         
-        carritoModal.style.display = 'flex';
+        // Abrir con seguridad de historial
+        abrirModalSeguro(carritoModal);
     });
     
     if(cerrarCarrito) cerrarCarrito.addEventListener('click', resetModal);
     if(cerrarExito) cerrarExito.addEventListener('click', resetModal);
     
+    // Cerrar clickeando fuera
     window.addEventListener('click', (e) => { 
         if(e.target === carritoModal) resetModal(); 
     });
@@ -417,7 +463,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnPagar.disabled = true;
 
         try {
-            // Verificar Stock
             await cargarInventario(); 
 
             let stockInsuficiente = false;
@@ -441,10 +486,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return; 
             }
 
-            // PROCESAR FECHA para evitar el desfase de un día
             const fechaDisplay = procesarFecha(clienteFechaEntrega); 
 
-            // Datos de Orden
             const totalPagar = document.getElementById('carrito-total').innerText;
             const resumenPedido = carrito.map(item => `${item.cantidad} x ${item.nombre}`).join(", ");
             
@@ -453,13 +496,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 detalle: resumenPedido,
                 nombre: clienteNombre,
                 telefono: clienteTelefono,
-                fechaEvento: fechaDisplay, // Usamos la clave 'fechaEvento' para la DB de Google Script
+                fechaEvento: fechaDisplay, 
                 total: totalPagar,
                 items: carrito, 
                 accion: "nuevo_pedido" 
             };
 
-            // Link WhatsApp (Usando la fecha corregida)
             let mensajeWhatsApp = `Hola Miss Palomitas, soy *${clienteNombre}*.\nQuiero realizar el siguiente pedido:\n\n`;
             carrito.forEach(item => {
                 mensajeWhatsApp += ` - ${item.cantidad} x ${item.nombre} ($${item.precio * item.cantidad})\n`;
@@ -471,7 +513,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const urlWhatsApp = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeWhatsApp)}`;
 
-            // Enviar a DB
             btnPagar.innerText = "Registrando...";
             await fetch(API_URL, {
                 method: 'POST',
@@ -480,7 +521,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(orden)
             });
 
-            // ÉXITO
             carrito = [];
             actualizarCarritoUI();
             inputNombre.value = '';
@@ -492,7 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             btnManualWhatsApp.href = urlWhatsApp;
 
-            // Recargar inventario (para la siguiente compra)
             cargarInventario();
 
         } catch (error) {
