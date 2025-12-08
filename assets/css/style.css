@@ -48,14 +48,13 @@ header nav a:hover::after { width: 100%; }
 #sabores { background-color: #ffffff; }
 #sabores h2, #contacto h2, #nosotros h2, #videos h2 { text-align: center; margin-bottom: 2rem; font-size: 4rem; }
 
-/* Intro de Sabores (Logo y Texto fijos) */
 .sabores-intro {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 0 0 2rem 0; /* Espacio antes de los botones */
+    padding: 0 0 2rem 0; 
 }
 .sabores-intro .logo-pequeno {
     height: 120px;
@@ -69,26 +68,16 @@ header nav a:hover::after { width: 100%; }
     letter-spacing: 4px;
 }
 
-/* Estilos de Botones Flotantes */
+/* CAMBIO: Sticky Filters con CSS Puro */
 .filtros-wrapper { 
-    position: relative; 
+    position: sticky; /* Magia para el pegado suave */
+    top: 110px; /* Altura aproximada del header fijo */
     z-index: 50; 
-    background-color: #ffffff; 
-    padding: 1rem 0; 
-    box-shadow: none; 
-    margin-bottom: 2rem;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease; 
-}
-
-.filtros-wrapper.floating-filters {
-    position: fixed;
-    top: 0; 
-    left: 0;
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.95); /* Un poco de transparencia */
     backdrop-filter: blur(5px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: top 0.3s ease;
+    padding: 1rem 0; 
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #eee; /* Borde sutil */
 }
 
 .filtros { 
@@ -98,7 +87,6 @@ header nav a:hover::after { width: 100%; }
     padding: 0 2rem; 
 }
 
-/* CAMBIO: Animación de atención secuencial */
 @keyframes atencion-boton {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.08); background-color: var(--color-primario); color: var(--color-secundario); }
@@ -116,12 +104,9 @@ header nav a:hover::after { width: 100%; }
     font-family: var(--fuente-texto); 
     font-weight: 700; 
     font-size: 1rem; 
-    
-    /* Aplicar animación */
     animation: atencion-boton 3s infinite;
 }
 
-/* Retrasos para que sea secuencial (por turno) */
 .filtro-btn:nth-child(1) { animation-delay: 0s; }
 .filtro-btn:nth-child(2) { animation-delay: 1s; }
 .filtro-btn:nth-child(3) { animation-delay: 2s; }
@@ -130,7 +115,7 @@ header nav a:hover::after { width: 100%; }
     background: var(--color-acento); 
     color: white; 
     transform: scale(1.05); 
-    animation: none; /* Detiene la animación si se interactúa */
+    animation: none; 
 }
 
 
@@ -148,16 +133,15 @@ header nav a:hover::after { width: 100%; }
 .galeria-item:hover .sabor-nombre { transform: translateY(0); }
 
 @media (max-width: 768px) {
-    /* CAMBIO: Botones en columna (uno debajo del otro) en móvil */
     .filtros {
         display: flex;
-        flex-direction: column; /* Apilar verticalmente */
-        gap: 15px; /* Espacio entre botones */
+        flex-direction: column; 
+        gap: 15px; 
         align-items: stretch;
     }
     .filtro-btn {
         margin: 0;
-        width: 100%; /* Botón ancho completo en móvil */
+        width: 100%; 
     }
 
     .sabor-nombre { transform: translateY(0); padding: 5px; font-size: 1rem; }
@@ -242,7 +226,6 @@ footer p { font-size: 0.9rem; margin: 0; }
 .modal-carrito { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; }
 .modal-contenido { background: white; padding: 2rem; border-radius: 15px; width: 90%; max-width: 450px; position: relative; text-align: center; max-height: 85vh; overflow-y: auto; }
 
-/* CAMBIO: Cerrar carrito más visible y grande */
 .cerrar-carrito { position: absolute; top: 5px; right: 15px; font-size: 40px; cursor: pointer; color: #555; z-index: 3001; font-weight: bold; line-height: 1; }
 .cerrar-carrito:hover { color: red; }
 

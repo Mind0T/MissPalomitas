@@ -150,6 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Mostrar grilla al filtrar
         galeriaGrid.style.display = 'grid';
+
+        // CAMBIO: Scroll automático hacia el inicio de la grilla (ajustado para el header fijo)
+        // Obtenemos la posicion del grid y restamos un offset para el header
+        const yOffset = -180; // Ajuste para header y botones
+        const y = galeriaGrid.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({top: y, behavior: 'smooth'});
     }
 
     filterBtns.forEach(btn => {
@@ -163,23 +169,20 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================================
        GESTIÓN HISTORIAL PARA MODALES (BACK BUTTON)
        ========================================= */
-    // Esta función maneja que al dar "Atrás" en el celular, se cierre el modal en vez de salir.
     window.addEventListener('popstate', (event) => {
-        // Si el usuario da atrás, cerramos todo lo que esté abierto visualmente
         lightbox.style.display = 'none';
         carritoModal.style.display = 'none';
     });
 
     function abrirModalSeguro(modalElement) {
-        // Empujamos un estado al historial para "atrapar" el botón atrás
         history.pushState({ modalOpen: true }, "", window.location.href);
         modalElement.style.display = 'flex';
+        // Si abrimos carrito, actualizamos el link de emergencia de inmediato
+        if (modalElement === carritoModal) actualizarLinkEmergencia(); 
     }
 
     function cerrarModalSeguro(modalElement) {
         modalElement.style.display = 'none';
-        // Si hay un estado en el historial, vamos atrás para limpiarlo
-        // (Esto evita que el usuario tenga que dar atrás dos veces luego)
         if (history.state && history.state.modalOpen) {
             history.back();
         }
@@ -233,7 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if(img) lightboxImg.src = img.src;
         
-        // Usamos la función segura para abrir y gestionar historial
         abrirModalSeguro(lightbox);
 
         if(productoActual) {
@@ -268,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation();
         let newIndex = currentItemIndex - 1;
         if(newIndex < 0) newIndex = itemsVisibles.length - 1; 
-        abrirLightboxNoHistory(newIndex); // Navegación interna sin afectar historial
+        abrirLightboxNoHistory(newIndex); 
     });
 
     if(nextBtn) nextBtn.addEventListener('click', (e) => {
@@ -278,7 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
         abrirLightboxNoHistory(newIndex);
     });
 
-    // Función auxiliar para navegar dentro del lightbox sin pushear historial extra
     function abrirLightboxNoHistory(index) {
         currentItemIndex = index;
         const item = itemsVisibles[currentItemIndex];
@@ -292,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
             lbTitulo.innerText = productoActual.nombre;
             lbPrecio.innerText = `$${productoActual.precio}`;
             lbStock.innerText = productoActual.stock;
-            // ... lógica de botones igual ...
              if (productoActual.stock > 0) {
                 btnAgregar.disabled = false;
                 btnAgregar.innerText = "Agregar al Carrito";
@@ -309,7 +309,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cerrarLightbox = () => cerrarModalSeguro(lightbox);
     closeBtn.addEventListener('click', cerrarLightbox);
     
-    // Cerrar al clickear fuera
     lightbox.addEventListener('click', (e) => { 
         if(e.target === lightbox) cerrarLightbox(); 
     });
@@ -334,6 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputTelefono = document.getElementById('cliente-telefono');
     const inputFechaEvento = document.getElementById('cliente-fecha-evento'); 
     const btnManualWhatsApp = document.getElementById('btn-manual-whatsapp');
+    const linkManualEmergencia = document.getElementById('link-manual-emergencia'); // Referencia al nuevo link
 
     function agregarAlCarrito(producto, cantidadInput) {
         const existe = carrito.find(item => item.id === producto.id);
@@ -407,19 +407,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 actualizarCarritoUI();
             });
         });
+
+        // Actualizamos el link de emergencia cada vez que cambia el carrito
+        actualizarLinkEmergencia();
     }
 
+    /* CAMBIO: Función para construir URL de WhatsApp */
+    function construirUrlWhatsApp() {
+        if (carrito.length === 0) return `https://wa.me/${WHATSAPP_NUMBER}`;
+
+        const nombre = inputNombre.value.trim() || "Cliente";
+        const telefono = inputTelefono.value.trim();
+        const fecha = inputFechaEvento.value ? procesarFecha(inputFechaEvento.value) : "Pendiente";
+        const total = document.getElementById('carrito-total').innerText;
+
+        let mensaje = `Hola Miss Palomitas, soy *${nombre}*.\nQuiero realizar el siguiente pedido (envío manual):\n\n`;
+        carrito.forEach(item => {
+            mensaje += ` - ${item.cantidad} x ${item.nombre} ($${item.precio * item.cantidad})\n`;
+        });
+        mensaje += `\n*Fecha de Entrega: ${fecha}*`; 
+        mensaje += `\n*Total a pagar: $${total}*`;
+        if (telefono) mensaje += `\nTel: ${telefono}`;
+
+        return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+    }
+
+    function actualizarLinkEmergencia() {
+        if (linkManualEmergencia) {
+            linkManualEmergencia.href = construirUrlWhatsApp();
+        }
+    }
+    
+    // Escuchar cambios en los inputs para actualizar el link de emergencia en tiempo real
+    [inputNombre, inputTelefono, inputFechaEvento].forEach(input => {
+        if(input) input.addEventListener('input', actualizarLinkEmergencia);
+    });
+
+
     function resetModal() {
-        // Al cerrar (reset), usamos la función segura si es que fue activada por botón X
-        // Pero aquí se llama desde listener directo, así que mejor usar cerrarModalSeguro
-        // Sin embargo, esta función se usa para cambiar vistas también.
-        
         modalContenidoCarrito.style.display = 'block';
         modalContenidoExito.style.display = 'none';
-        
-        // Si llamamos a resetModal desde el boton cerrar, aplicamos logica de historial
         cerrarModalSeguro(carritoModal);
-        
         btnPagar.innerText = "Confirmar Pedido";
         btnPagar.disabled = false;
     }
@@ -427,18 +455,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if(carritoBtn) carritoBtn.addEventListener('click', () => {
         modalContenidoCarrito.style.display = 'block';
         modalContenidoExito.style.display = 'none';
-        
         btnPagar.innerText = "Confirmar Pedido";
         btnPagar.disabled = false;
-        
-        // Abrir con seguridad de historial
         abrirModalSeguro(carritoModal);
     });
     
     if(cerrarCarrito) cerrarCarrito.addEventListener('click', resetModal);
     if(cerrarExito) cerrarExito.addEventListener('click', resetModal);
     
-    // Cerrar clickeando fuera
     window.addEventListener('click', (e) => { 
         if(e.target === carritoModal) resetModal(); 
     });
@@ -502,16 +526,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 accion: "nuevo_pedido" 
             };
 
-            let mensajeWhatsApp = `Hola Miss Palomitas, soy *${clienteNombre}*.\nQuiero realizar el siguiente pedido:\n\n`;
-            carrito.forEach(item => {
-                mensajeWhatsApp += ` - ${item.cantidad} x ${item.nombre} ($${item.precio * item.cantidad})\n`;
-            });
-            mensajeWhatsApp += `\n*Fecha de Entrega: ${fechaDisplay}*`; 
-            mensajeWhatsApp += `\n*Total a pagar: $${totalPagar}*`;
-            mensajeWhatsApp += `\n\nMis datos de contacto:\nTel: ${clienteTelefono}`;
-            mensajeWhatsApp += `\n\nQuedo pendiente para coordinar el pago y la entrega. Gracias!`;
-            
-            const urlWhatsApp = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeWhatsApp)}`;
+            // Usamos la misma lógica para el link final
+            const urlWhatsApp = construirUrlWhatsApp();
 
             btnPagar.innerText = "Registrando...";
             await fetch(API_URL, {
@@ -542,37 +558,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    /* =========================================
-       8. LÓGICA DE BOTONES FLOTANTES
-       ========================================= */
-    const filtrosWrapper = document.getElementById('filtros-wrapper');
-    const saboresSection = document.getElementById('sabores');
-    const header = document.querySelector('header');
-    
-    let isFloating = false;
-
-    window.addEventListener('scroll', () => {
-        if (!saboresSection || !filtrosWrapper || !header) return;
-
-        const headerHeight = header.offsetHeight;
-        const saboresTop = saboresSection.offsetTop;
-        const currentScroll = window.scrollY;
-
-        const offsetActivation = saboresTop - headerHeight;
-
-        if (currentScroll >= offsetActivation) {
-            if (!isFloating) {
-                filtrosWrapper.classList.add('floating-filters');
-                filtrosWrapper.style.top = `${headerHeight}px`;
-                isFloating = true;
-            }
-        } else {
-            if (isFloating) {
-                filtrosWrapper.classList.remove('floating-filters');
-                filtrosWrapper.style.top = 'unset';
-                isFloating = false;
-            }
-        }
-    });
-
 });
