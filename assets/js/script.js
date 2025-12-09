@@ -151,9 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Mostrar grilla al filtrar
         galeriaGrid.style.display = 'grid';
 
-        // CAMBIO: Scroll automático hacia el inicio de la grilla (ajustado para el header fijo)
-        // Obtenemos la posicion del grid y restamos un offset para el header
-        const yOffset = -180; // Ajuste para header y botones
+        // Scroll automático suave hacia el inicio de la grilla
+        const yOffset = -220; // Ajuste para header y botones fijos
         const y = galeriaGrid.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({top: y, behavior: 'smooth'});
     }
@@ -412,7 +411,6 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarLinkEmergencia();
     }
 
-    /* CAMBIO: Función para construir URL de WhatsApp */
     function construirUrlWhatsApp() {
         if (carrito.length === 0) return `https://wa.me/${WHATSAPP_NUMBER}`;
 
@@ -557,5 +555,44 @@ document.addEventListener('DOMContentLoaded', () => {
             btnPagar.disabled = false;
         }
     });
+
+    /* =========================================
+       8. LÓGICA DE BOTONES FLOTANTES (FIXED + PLACEHOLDER)
+       ========================================= */
+    const filtrosWrapper = document.getElementById('filtros-wrapper');
+    const placeholder = document.getElementById('filtros-placeholder');
+    const header = document.querySelector('header');
+    
+    // Función para manejar el scroll y activar/desactivar la clase fixed
+    function handleScroll() {
+        if (!filtrosWrapper || !placeholder || !header) return;
+
+        const headerHeight = header.offsetHeight;
+        // Calculamos la posición del placeholder (que siempre está estático en el flujo)
+        const placeholderTop = placeholder.getBoundingClientRect().top;
+
+        // Si el placeholder toca el borde inferior del header
+        if (placeholderTop <= headerHeight) {
+            // Activamos modo flotante
+            if (!filtrosWrapper.classList.contains('floating-filters')) {
+                filtrosWrapper.classList.add('floating-filters');
+                filtrosWrapper.style.top = `${headerHeight}px`; // Se pega debajo del header
+                // INFLAMOS el placeholder para ocupar el espacio vacío y evitar el brinco
+                placeholder.style.height = `${filtrosWrapper.offsetHeight}px`;
+            }
+        } else {
+            // Desactivamos modo flotante
+            if (filtrosWrapper.classList.contains('floating-filters')) {
+                filtrosWrapper.classList.remove('floating-filters');
+                filtrosWrapper.style.top = 'unset';
+                // Desinflamos el placeholder
+                placeholder.style.height = '0px';
+            }
+        }
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    // Ejecutar al inicio por si se recarga la página ya scrolleada
+    handleScroll();
     
 });

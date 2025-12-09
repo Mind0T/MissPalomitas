@@ -68,16 +68,33 @@ header nav a:hover::after { width: 100%; }
     letter-spacing: 4px;
 }
 
-/* CAMBIO: Sticky Filters con CSS Puro */
+/* CAMBIO: Wrapper por defecto estático. La clase 'floating-filters' es fixed */
 .filtros-wrapper { 
-    position: sticky; /* Magia para el pegado suave */
-    top: 110px; /* Altura aproximada del header fijo */
+    position: relative; /* Normal */
     z-index: 50; 
-    background-color: rgba(255, 255, 255, 0.95); /* Un poco de transparencia */
-    backdrop-filter: blur(5px);
+    background-color: transparent; 
     padding: 1rem 0; 
     margin-bottom: 2rem;
-    border-bottom: 1px solid #eee; /* Borde sutil */
+    transition: none; /* Quitamos transición para que sea inmediato */
+}
+
+/* Estado flotante fijo global */
+.filtros-wrapper.floating-filters {
+    position: fixed; 
+    top: 100px; /* Se ajustará dinámicamente o por CSS base */
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    /* Animación suave de aparición */
+    animation: slideDown 0.3s ease forwards;
+    padding: 10px 0;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .filtros { 
