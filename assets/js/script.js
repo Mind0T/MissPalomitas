@@ -199,16 +199,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const infoPanel = document.createElement('div');
     infoPanel.className = 'info-producto';
+    
+    // CAMBIO: Estructura HTML para usar iconos y nuevo texto de stock
     infoPanel.innerHTML = `
         <h2 id="lb-titulo" style="font-family:'Sacramento', cursive; color:#D94A8B;">...</h2>
         <p>Precio: <strong id="lb-precio" style="color:#54C5C3;">$0</strong></p>
         
-        <div style="margin: 15px 0;">
-            <label style="font-weight:bold; margin-right:5px;">Cantidad:</label>
-            <input type="number" id="lb-cantidad" value="1" min="1" max="50" style="width: 60px; padding: 5px; border-radius: 5px; border:1px solid #ccc; text-align:center; font-size:1rem;">
+        <div class="cantidad-container">
+            <label style="font-weight:bold; display:block; font-size:0.9rem; margin-bottom:5px;">Cantidad a agregar</label>
+            <div class="cantidad-controles">
+                <button id="btn-menos" class="btn-cantidad" title="Reducir cantidad"><i class="fa-solid fa-minus"></i></button>
+                <input type="number" id="lb-cantidad" value="1" min="1" max="50" class="input-cantidad">
+                <button id="btn-mas" class="btn-cantidad" title="Aumentar cantidad"><i class="fa-solid fa-plus"></i></button>
+            </div>
         </div>
 
-        <p style="font-size:0.9rem; color:#666;">Disponibles: <span id="lb-stock">...</span></p>
+        <p style="font-size:0.9rem; color:#666;"><span id="lb-stock">...</span></p> 
         <p style="font-size:0.7rem; color:#999; margin-top: 10px;">Imágenes solo ilustrativas</p>
         <button id="btn-agregar-carrito" class="btn-enviar" style="margin-top:15px;">Agregar al Carrito</button>
     `;
@@ -220,6 +226,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const lbCantidad = document.getElementById('lb-cantidad');
     const btnAgregar = document.getElementById('btn-agregar-carrito');
     
+    const btnMenos = document.getElementById('btn-menos');
+    const btnMas = document.getElementById('btn-mas');
+
+    /**
+     * Obtiene la cantidad de un producto que ya está en el carrito.
+     * @param {string} productId - El ID del producto.
+     * @returns {number} Cantidad actual en el carrito.
+     */
+    function getQuantityInCart(productId) {
+        const item = carrito.find(item => item.id === productId);
+        return item ? item.cantidad : 0;
+    }
+
+    if(btnMenos && btnMas && lbCantidad) {
+        btnMenos.addEventListener('click', () => {
+             let val = parseInt(lbCantidad.value) || 1;
+             if(val > 1) lbCantidad.value = val - 1;
+        });
+
+        btnMas.addEventListener('click', () => {
+             let val = parseInt(lbCantidad.value) || 1;
+             
+             // Usa el máximo permitido establecido en el atributo max
+             const maxLimit = parseInt(lbCantidad.max); 
+
+             if(val < maxLimit) lbCantidad.value = val + 1;
+        });
+        
+        // Listener para restringir si el usuario escribe el número
+        lbCantidad.addEventListener('input', () => {
+            let val = parseInt(lbCantidad.value);
+            const maxLimit = parseInt(lbCantidad.max);
+
+            if(isNaN(val) || val < 1) {
+                lbCantidad.value = 1;
+            } else if (val > maxLimit) {
+                // Si intenta subir más del límite disponible
+                lbCantidad.value = maxLimit;
+            } else if (val > 50) { // Límite de control general (ej: por si el stock es 1000)
+                lbCantidad.value = 50; 
+            }
+        });
+    }
+
     let currentItemIndex = 0; 
 
     function abrirLightbox(index) {
@@ -231,7 +281,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const idProducto = item.getAttribute('data-id');
 
         const productoActual = inventario.find(p => p.id === idProducto);
-        lbCantidad.value = 1;
+        const quantityInCart = getQuantityInCart(idProducto);
+        
+        // El máximo que se le puede permitir agregar es el stock total menos lo que ya tiene en carrito
+        const maxAllowed = productoActual ? (productoActual.stock - quantityInCart) : 0;
+        
+        // Aseguramos que el valor inicial sea 1 o el máximo permitido
+        lbCantidad.value = Math.max(1, Math.min(1, maxAllowed));
+        lbCantidad.max = maxAllowed; 
 
         if(img) lightboxImg.src = img.src;
         
@@ -240,21 +297,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if(productoActual) {
             lbTitulo.innerText = productoActual.nombre;
             lbPrecio.innerText = `$${productoActual.precio}`;
-            lbStock.innerText = productoActual.stock;
-
-            if (productoActual.stock > 0) {
+            
+            if (maxAllowed > 0) {
+                lbStock.innerHTML = `Stock Total: ${productoActual.stock} | Disponibles para agregar: <strong style="color: ${maxAllowed > 5 ? '#25D366' : '#D94A8B'};">${maxAllowed}</strong>`;
                 btnAgregar.disabled = false;
                 btnAgregar.innerText = "Agregar al Carrito";
                 btnAgregar.style.backgroundColor = "#D94A8B";
                 btnAgregar.onclick = () => agregarAlCarrito(productoActual, parseInt(lbCantidad.value));
             } else {
+                lbStock.innerHTML = `Stock Total: ${productoActual.stock}. <strong style="color: #D94A8B;">Ya tienes ${quantityInCart} en el carrito.</strong>`;
                 btnAgregar.disabled = true;
-                btnAgregar.innerText = "Agotado";
+                btnAgregar.innerText = `Stock en carrito (${quantityInCart})`;
                 btnAgregar.style.backgroundColor = "#ccc";
             }
         } else {
             lbTitulo.innerText = "Producto no disponible";
+            lbStock.innerText = "Error de inventario.";
             btnAgregar.disabled = true;
+            btnAgregar.innerText = "No disponible";
+            btnAgregar.style.backgroundColor = "#ccc";
         }
     }
 
@@ -284,22 +345,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const item = itemsVisibles[currentItemIndex];
         const img = item.querySelector('img');
         const idProducto = item.getAttribute('data-id');
+        
         const productoActual = inventario.find(p => p.id === idProducto);
+        const quantityInCart = getQuantityInCart(idProducto);
+        const maxAllowed = productoActual ? (productoActual.stock - quantityInCart) : 0;
+        
+        // Actualizar el input con el nuevo max y el valor inicial
+        lbCantidad.value = Math.max(1, Math.min(1, maxAllowed));
+        lbCantidad.max = maxAllowed; 
         
         if(img) lightboxImg.src = img.src;
         
         if(productoActual) {
             lbTitulo.innerText = productoActual.nombre;
             lbPrecio.innerText = `$${productoActual.precio}`;
-            lbStock.innerText = productoActual.stock;
-             if (productoActual.stock > 0) {
+            
+            if (maxAllowed > 0) {
+                lbStock.innerHTML = `Stock Total: ${productoActual.stock} | Disponibles para agregar: <strong style="color: ${maxAllowed > 5 ? '#25D366' : '#D94A8B'};">${maxAllowed}</strong>`;
                 btnAgregar.disabled = false;
                 btnAgregar.innerText = "Agregar al Carrito";
                 btnAgregar.style.backgroundColor = "#D94A8B";
                 btnAgregar.onclick = () => agregarAlCarrito(productoActual, parseInt(lbCantidad.value));
             } else {
+                lbStock.innerHTML = `Stock Total: ${productoActual.stock}. <strong style="color: #D94A8B;">Ya tienes ${quantityInCart} en el carrito.</strong>`;
                 btnAgregar.disabled = true;
-                btnAgregar.innerText = "Agotado";
+                btnAgregar.innerText = `Stock en carrito (${quantityInCart})`;
                 btnAgregar.style.backgroundColor = "#ccc";
             }
         }
@@ -339,6 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let cantidadActualEnCarrito = existe ? existe.cantidad : 0;
         
+        // Revalidación al momento de agregar (aunque ya se hizo en el lightbox)
         if ((cantidadActualEnCarrito + cantidadInput) > producto.stock) {
             alert(`Solo hay ${producto.stock} unidades disponibles. Ya tienes ${cantidadActualEnCarrito} en carrito.`);
             return;
@@ -485,6 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnPagar.disabled = true;
 
         try {
+            // Recargamos el inventario para la última verificación de stock
             await cargarInventario(); 
 
             let stockInsuficiente = false;
@@ -502,9 +574,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (stockInsuficiente) {
-                alert("Atención! El stock ha cambiado:\n\n" + mensajeError + "\nPor favor ajusta tu pedido.");
+                alert("Atención! El stock ha cambiado. Por favor revisa tu carrito y ajusta las cantidades:\n\n" + mensajeError);
                 btnPagar.innerText = textoOriginal;
                 btnPagar.disabled = false;
+                // Forzar la actualización de la UI del carrito por si el usuario lo abre después.
+                actualizarCarritoUI(); 
                 return; 
             }
 
@@ -546,6 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             btnManualWhatsApp.href = urlWhatsApp;
 
+            // Recargar inventario para tener la versión más fresca al cerrar el pedido.
             cargarInventario();
 
         } catch (error) {

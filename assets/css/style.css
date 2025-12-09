@@ -68,26 +68,25 @@ header nav a:hover::after { width: 100%; }
     letter-spacing: 4px;
 }
 
-/* CAMBIO: Wrapper por defecto estático. La clase 'floating-filters' es fixed */
+/* Wrapper por defecto estático */
 .filtros-wrapper { 
-    position: relative; /* Normal */
+    position: relative; 
     z-index: 50; 
     background-color: transparent; 
     padding: 1rem 0; 
     margin-bottom: 2rem;
-    transition: none; /* Quitamos transición para que sea inmediato */
+    transition: none;
 }
 
-/* Estado flotante fijo global */
+/* Estado flotante fixed */
 .filtros-wrapper.floating-filters {
     position: fixed; 
-    top: 100px; /* Se ajustará dinámicamente o por CSS base */
+    top: 100px; 
     left: 0;
     width: 100%;
     background-color: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(5px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    /* Animación suave de aparición */
     animation: slideDown 0.3s ease forwards;
     padding: 10px 0;
 }
@@ -222,6 +221,73 @@ footer p { font-size: 0.9rem; margin: 0; }
 .lightbox-wrapper { position: relative; max-width: 95%; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: transparent; border-radius: 10px; padding: 10px; scrollbar-width: thin; scrollbar-color: var(--color-secundario) transparent; }
 .lightbox-contenido { max-width: 100%; max-height: 50vh; object-fit: contain; border-radius: 10px; }
 .info-producto { background: white; width: 100%; max-width: 400px; margin-top: 15px; padding: 15px; border-radius: 10px; text-align: center; color: var(--color-texto); box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+
+/* CAMBIO ESTÉTICO: Controles de cantidad más estilizados */
+.cantidad-container {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.cantidad-controles {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.btn-cantidad {
+    background-color: var(--color-secundario);
+    color: white;
+    border: none;
+    width: 40px; 
+    height: 40px; 
+    /* Estilo circular */
+    border-radius: 50%; 
+    font-weight: bold;
+    font-size: 1.2rem; /* Tamaño de fuente para los iconos */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, transform 0.1s;
+    line-height: 1; 
+    padding: 0; /* Asegura el centrado del icono */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+}
+.btn-cantidad:hover { background-color: var(--color-acento); }
+.btn-cantidad:active { transform: scale(0.95); }
+
+/* Estilo del input */
+.input-cantidad {
+    width: 60px;
+    height: 40px; 
+    text-align: center;
+    font-size: 1.3rem;
+    font-family: var(--fuente-texto);
+    /* Estilo más limpio: sin borde completo, solo la línea inferior */
+    border: none;
+    border-bottom: 2px solid var(--color-secundario); 
+    border-radius: 0;
+    outline: none;
+    color: var(--color-texto);
+    font-weight: bold;
+    transition: border-color 0.3s;
+}
+.input-cantidad:focus {
+    border-color: var(--color-acento);
+}
+
+/* Ocultar flechas nativas del navegador */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+input[type=number] { 
+    -moz-appearance: textfield; 
+}
+
 
 .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 2rem; cursor: pointer; padding: 20px; z-index: 10001; transition: transform 0.2s; background: rgba(0,0,0,0.3); border-radius: 50%; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; }
 .lightbox-nav:hover { background: rgba(217, 74, 139, 0.8); transform: translateY(-50%) scale(1.1); }
