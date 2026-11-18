@@ -60,8 +60,8 @@ Para ver la página en funcionamiento en tu equipo, solo sigue estos pasos:
 ## 👨‍💻 Creado por
 
 **Irvin Soriano**
-* Estudiante de Inteligencia Artificial.
+* Estudiante de la Licenciatura en Ciencia de Datos en la Escuela Superior de Cómputo (ESCOM) del IPN.
 
 Puedes contactarme o ver más de mi trabajo aquí:
-* **GitHub**: `[Enlace a tu perfil de GitHub]`
-* **LinkedIn**: `[Enlace a tu perfil de LinkedIn]`
+* **GitHub**: [Mind0T](https://github.com/Mind0T)
+* **LinkedIn**: [Irving Soriano](https://www.linkedin.com/in/irving-soriano)
